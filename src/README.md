@@ -1,15 +1,25 @@
 # Source
 
-Place your solution code here. You may organize this however your team sees fit.
+Place your solution code here. Organize however your team sees fit — there is no required structure.
 
-**Recommended structure (Clean Architecture):**
+**Example structure (Clean Architecture — .NET):**
 
 ```
 src/
-  RequestTriage.Domain/
-  RequestTriage.Application/
-  RequestTriage.Infrastructure/
-  RequestTriage.Api/
+  DCI.Triage.Domain/
+  DCI.Triage.Application/
+  DCI.Triage.Infrastructure/
+  DCI.Triage.Api/
 ```
 
-See `.github/instructions/` for Copilot guidance on Clean Architecture and DDD patterns.
+**Example structure (Vertical Slice — any stack):**
+
+```
+src/
+  features/
+    triage/
+    routing/
+  api/
+```
+
+See `.github/instructions/` for Copilot guidance on Clean Architecture and DDD patterns (C#/.NET focused; adapt for your stack).

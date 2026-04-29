@@ -40,7 +40,14 @@ Common terms used in Damage Control, Inc. (DCI) help requests and support operat
 
 **Triage** — The process of evaluating and categorizing an incoming request to determine the appropriate routing and priority.
 
-**Routing Target** — The team or system a request is sent to after triage: Engineering Backlog, Damage Analytics Team, or Field Support Desk.
+**Routing Target** — The team or queue a request is sent to after triage. Maps to one of the four classification categories:
+
+| Classification | Routed To |
+| -- | -- |
+| Data Patch | Damage Analytics Team (DBA queue) |
+| Engineering Ticket | Engineering Backlog |
+| Field Support | Field Support Desk |
+| Needs Human Review | Triage Lead (manual review) |
 
 **Confidence Score** — A value between 0.0 and 1.0 indicating how certain the AI model is about its classification.
 

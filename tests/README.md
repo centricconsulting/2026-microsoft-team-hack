@@ -2,10 +2,12 @@
 
 Place your unit and integration tests here.
 
-**Recommended structure:**
+**Example structure (.NET):**
 
 ```
 tests/
-  RequestTriage.UnitTests/      # Domain + Application layer tests
-  RequestTriage.IntegrationTests/  # Infrastructure + API tests
+  DCI.Triage.UnitTests/         # Domain + Application layer tests
+  DCI.Triage.IntegrationTests/  # Infrastructure + API tests
 ```
+
+Use whatever test framework fits your stack — xUnit, Jest, pytest, etc.
