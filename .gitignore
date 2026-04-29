@@ -1,17 +1,95 @@
+# =========================
+# Microsoft / .NET / Visual Studio
+# =========================
+
 # Build outputs
-bin/
-obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
 target/
 build/
 dist/
 out/
+artifacts/
 
-# .NET
-*.user
+# User-specific files
+*.rsuser
 *.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# IDE/editor folders
 .vs/
-*.nupkg
+.vscode/settings.json
+.idea/
+
+# Test / coverage artifacts
 TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+coverage-*/
+*.lcov
+lcov.info
+
+# Diagnostics / profiling
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+!packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts-*/
+
+# .NET tools and generated files
+BenchmarkDotNet.Artifacts/
+Generated Files/
+publish/
+wwwroot/dist/
+
+# Azure Functions local settings
+local.settings.json
+
+# Logs and temp files
+*.log
+*.err
+logs/
+*.tmp
+*.temp
+*.pid
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# =========================
+# Secrets / Environment
+# =========================
+
+.env
+.env.*
+*.pfx
+*.pem
+*.key
+secrets.json
+appsettings.*.json
+!appsettings.Development.json
+
+# =========================
+# Polyglot additions used in this repo
+# =========================
 
 # Java / Maven / Gradle
 *.class
@@ -38,27 +116,6 @@ yarn-error.log*
 *.exe
 *.test
 
-# Environment / secrets
-.env
-.env.*
-*.pfx
-*.pem
-appsettings.*.json
-!appsettings.Development.json
-
-# IDE
-.idea/
-.vscode/settings.json
+# Editor swap files
 *.swp
 *.swo
-.DS_Store
-
-# Coverage
-coverage/
-*.lcov
-lcov.info
-
-# Logs
-*.log
-*.err
-logs/
