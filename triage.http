@@ -1,0 +1,196 @@
+### DCI Triage API — REST Client
+### VS Code extension: "REST Client" (humao.rest-client)
+### Usage: click "Send Request" above any request block
+### Set @baseUrl to wherever your API is running.
+
+@baseUrl = http://localhost:5000
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0001 — Engineering Ticket (clear regression)
+# Expected: Engineering Ticket
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0001",
+  "submitted_by": "Marcus Webb",
+  "date_submitted": "2026-03-10",
+  "subject": "Export button broken on site status report",
+  "description": "When I click the Export to CSV button on the Site Status report page, nothing happens. I've tried Chrome and Edge. This was working fine last week.",
+  "account_id": "DCI-44201"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0002 — Data Patch (count mismatch in dashboard vs backend)
+# Expected: Data Patch
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0002",
+  "submitted_by": "Linda Ferreira",
+  "date_submitted": "2026-03-11",
+  "subject": "Active work order count is wrong in dashboard",
+  "description": "The dashboard shows 342 active work orders but our backend shows 378. We're presenting to the city liaison tomorrow and need this reconciled ASAP.",
+  "account_id": "DCI-44202"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0003 — Field Support (password reset / access issue)
+# Expected: Field Support
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0003",
+  "submitted_by": "James Okafor",
+  "date_submitted": "2026-03-12",
+  "subject": "Can't log in — password reset isn't working",
+  "description": "I requested a password reset but I never received the email. I've checked my spam folder. Can someone help me get back into my account?",
+  "account_id": "DCI-44203"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0004 — Engineering Ticket (new report feature request)
+# Expected: Engineering Ticket
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0004",
+  "submitted_by": "Sarah Chen",
+  "date_submitted": "2026-03-12",
+  "subject": "Need incident cost breakdown by NYC borough",
+  "description": "We need a report showing reconstruction costs broken down by borough (Manhattan, Brooklyn, Queens, Bronx, Staten Island) for Q1 2026. This doesn't exist yet in the portal.",
+  "account_id": "DCI-44204"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0005 — Engineering Ticket (nightly API 500 regression)
+# Expected: Engineering Ticket
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0005",
+  "submitted_by": "Derek Holloway",
+  "date_submitted": "2026-03-13",
+  "subject": "Site sync API returns 500 error after midnight",
+  "description": "Our field management system calls the DCI site sync API every night at 12:05 AM to update daily totals. Since March 1st we've been getting a 500 Internal Server Error consistently. Daytime calls work fine.",
+  "account_id": "DCI-44205"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0006 — Needs Human Review (vague, no actionable detail)
+# Expected: Needs Human Review
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0006",
+  "submitted_by": "Patricia Nguyen",
+  "date_submitted": "2026-03-13",
+  "subject": "Something is broken",
+  "description": "The system isn't working for us. Please help.",
+  "account_id": "DCI-44206"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0007 — Data Patch (stale ETL / nightly sync failure)
+# Expected: Data Patch
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0007",
+  "submitted_by": "Tom Ramirez",
+  "date_submitted": "2026-03-14",
+  "subject": "Nightly work order sync hasn't run in 3 days",
+  "description": "We rely on the nightly ETL to populate our damage analytics warehouse. The last successful run was March 11th. Our Power BI dashboards are stale and we have a city council briefing on Friday.",
+  "account_id": "DCI-44207"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0008 — Field Support (contractor onboarding)
+# Expected: Field Support
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0008",
+  "submitted_by": "Alicia Morgan",
+  "date_submitted": "2026-03-14",
+  "subject": "How do I add a new contractor to our crew roster?",
+  "description": "We just brought on a new structural engineer and need to give her access to the DCI Operations Portal. I don't see an option to add contractors in my team settings.",
+  "account_id": "DCI-44208"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0009 — Engineering Ticket (feature request: filter by incident type)
+# Expected: Engineering Ticket
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0009",
+  "submitted_by": "Kevin Park",
+  "date_submitted": "2026-03-15",
+  "subject": "Filter by incident type feature request",
+  "description": "We'd love to be able to filter the work order dashboard by incident type (structural collapse, fire damage, alien incursion, flooding, etc.). Right now everything is aggregated and it limits our site planning.",
+  "account_id": "DCI-44209"
+}
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQ0010 — Field Support (billing / invoice question)
+# Expected: Field Support
+# ─────────────────────────────────────────────────────────────────────────────
+### Send Request
+POST {{baseUrl}}/api/triage
+Content-Type: application/json
+
+{
+  "request_id": "REQ0010",
+  "submitted_by": "Brenda Castillo",
+  "date_submitted": "2026-03-15",
+  "subject": "Invoice missing for February reconstruction project",
+  "description": "We completed the Midtown cleanup in February and submitted all work orders, but our accounting team never received an invoice. Can you confirm the billing status for project PROJ-2026-0214?",
+  "account_id": "DCI-44210"
+}
+
+###

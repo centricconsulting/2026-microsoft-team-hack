@@ -1,0 +1,39 @@
+// .NET Participant DevContainer - Centric Microsoft Practice Hackathon 2026
+{
+    "name": "Centric MS Practice Hack 2026 - .NET",
+    "image": "mcr.microsoft.com/devcontainers/dotnet:9.0-bookworm",
+
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        }
+    },
+
+    "postCreateCommand": "dotnet dev-certs https --trust",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "humao.rest-client",
+                "ms-dotnettools.csdevkit",
+                "bierner.markdown-mermaid",
+                "marp-team.marp-vscode",
+                "yzhang.markdown-all-in-one",
+                "mohsen1.prettify-json"
+            ],
+            "settings": {
+                "github.copilot.advanced": {}
+            }
+        }
+    },
+
+    "forwardPorts": [5000, 5001],
+    "portsAttributes": {
+        "5001": {
+            "protocol": "https",
+            "label": ".NET HTTPS"
+        }
+    }
+}

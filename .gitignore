@@ -1,0 +1,64 @@
+# Build outputs
+bin/
+obj/
+target/
+build/
+dist/
+out/
+
+# .NET
+*.user
+*.suo
+.vs/
+*.nupkg
+TestResults/
+
+# Java / Maven / Gradle
+*.class
+*.jar
+*.war
+.gradle/
+.mvn/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp/
+
+# Go
+*.exe
+*.test
+
+# Environment / secrets
+.env
+.env.*
+*.pfx
+*.pem
+appsettings.*.json
+!appsettings.Development.json
+
+# IDE
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+.DS_Store
+
+# Coverage
+coverage/
+*.lcov
+lcov.info
+
+# Logs
+*.log
+*.err
+logs/

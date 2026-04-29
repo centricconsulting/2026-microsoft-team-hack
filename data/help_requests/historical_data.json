@@ -1,0 +1,302 @@
+[
+  {
+    "request": "Work Order Count Mismatch — Dashboard vs Backend\n\nHi team, Phil Coulson here from NYC Emergency Management. Our DCI Operations Portal dashboard is showing 342 active work orders but when I query the backend directly I see 378. We have a city liaison presentation tomorrow morning and need this reconciled before then. This happened once before and a data sync job was re-run to fix it.",
+    "resolution": "Data Patch",
+    "what_we_did": "Identified 36 work orders stuck in a pending-sync state due to a failed ETL batch from March 9. Re-triggered the sync job and confirmed counts matched across dashboard and backend within 20 minutes.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Contractor Certification Expiry Date Incorrect\n\nHello, I'm Maria Hill with the DCI Field Operations team. One of our structural engineers, Happy Hogan (contractor ID DCI-C-8821), has his OSHA certification expiry date showing as 2023-11-15 in the portal. His actual cert doesn't expire until 2026-11-15. He was just flagged as non-compliant because of this. Please correct the expiry date — I can provide the cert document if needed.",
+    "resolution": "Data Patch",
+    "what_we_did": "Verified the cert document provided by Maria Hill. Updated CertificationRecords.ExpiryDate for contractor DCI-C-8821 from '2023-11-15' to '2026-11-15'. Compliance flag cleared automatically on next nightly validation run.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Site Status Still Showing Active After Project Completion\n\nThis is Pepper Potts from the DCI Project Controls group. Project PROJ-2026-0088 (Midtown Manhattan Site B) was officially closed on March 3rd but it still shows as 'Active' in the portal. This is causing it to show up in active site reports and skewing our metrics. The project manager already signed off on the closure. Can someone update the record?",
+    "resolution": "Data Patch",
+    "what_we_did": "Updated Projects.StatusCode from 'ACTIVE' to 'CLOSED' and set Projects.ClosedDate to '2026-03-03' for PROJ-2026-0088. Confirmed site no longer appears in active dashboards.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Feature Flag Not Enabled for Zone Mapping Module\n\nJames Rhodes here from the Infrastructure team. We were told that the new Zone Mapping module was going to be enabled for our account (DCI-1001) last Friday. It still hasn't appeared. We believe it requires a config table update to flip the feature flag. Can you enable it? We've been waiting since the March 7 release.",
+    "resolution": "Data Patch",
+    "what_we_did": "Located FeatureFlags record for account DCI-1001. Set ZONE_MAPPING_ENABLED from 0 to 1 in the AccountFeatures table. James Rhodes confirmed the module appeared within minutes.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Nightly ETL Sync Has Not Run in 2 Days\n\nSharon Carter, DCI Analytics. Our Power BI damage reports pull from the analytics warehouse which is populated by the nightly ETL. The last successful run was two days ago (March 11). All our dashboards are stale. We have an executive review on Friday and need the data current. Please check the sync job and re-trigger if needed.",
+    "resolution": "Data Patch",
+    "what_we_did": "Found that the ETL job scheduler had a deadlocked connection pool from a long-running query on March 11. Released the lock, re-ran the ETL for March 12 and 13 manually, and confirmed warehouse data was current. Added a lock timeout alert to prevent recurrence.",
+    "what_we_think_should_have_been_done": "The root cause was a missing timeout on the long-running query — an Engineering Ticket should also have been created to address that query performance issue."
+  },
+  {
+    "request": "Duplicate Site Records Need Merging\n\nDarcy Lewis here. We have two records for the same site: Site ID DCI-SITE-4401 and DCI-SITE-4401B. These were created during a data import error last month. All work orders should be linked to DCI-SITE-4401. Can the records be merged and the duplicate deactivated?",
+    "resolution": "Data Patch",
+    "what_we_did": "Re-linked all work orders (11 total) from DCI-SITE-4401B to DCI-SITE-4401. Soft-deleted DCI-SITE-4401B by setting IsActive = 0. Confirmed no orphaned records remained.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Missing Borough Code in Site Mapping Table\n\nErik Selvig, Data Engineering. We recently added a new site in Staten Island (DCI-SITE-5512) but the borough code lookup is failing because 'Staten Island' is not present in the SiteMappings reference table. Every other borough is there. It's causing the new site to fall into an 'Unknown' bucket in all reports. Can someone add the mapping entry?",
+    "resolution": "Data Patch",
+    "what_we_did": "Inserted a new row into the SiteMappings reference table: SiteCode='SI', BoroughName='Staten Island', RegionCode='SI-01'. DCI-SITE-5512 now resolves correctly in all reports.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Work Order Assigned to Wrong Project\n\nJane Foster from Project Management. Work order WO-2026-7741 was mistakenly linked to project PROJ-2026-0044 (Queens Sector 3) when it should be under PROJ-2026-0039 (Queens Sector 1). Both projects belong to the same client. The contractor has already started work based on the correct site. Can you relink WO-2026-7741 to the correct project?",
+    "resolution": "Data Patch",
+    "what_we_did": "Updated WorkOrders.ProjectId for WO-2026-7741 from PROJ-2026-0044 to PROJ-2026-0039. Verified the linked SiteAssignment and billing records were unaffected.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Contractor Payroll Flag Not Updated After Promotion\n\nDum Dum Dugan from HR Systems. Contractor Gabe Jones (ID DCI-C-1128) was promoted to crew lead effective March 1st, which requires a payroll tier flag update in the ContractorRecords table. The change wasn't propagated from HR to the DCI system. His invoices are still generating at the standard tier. Please update his record to tier 'CREW_LEAD'.",
+    "resolution": "Data Patch",
+    "what_we_did": "Updated ContractorRecords.PayrollTier from 'STANDARD' to 'CREW_LEAD' for DCI-C-1128, effective 2026-03-01. Also updated UpdatedDate timestamp. Future invoices will generate at the correct tier.",
+    "what_we_think_should_have_been_done": "The HR-to-DCI system integration should automatically propagate promotions. An Engineering Ticket should be filed to close this gap so manual patches aren't required for every promotion."
+  },
+  {
+    "request": "Cost Center Code Wrong for All Q1 Work Orders in Brooklyn\n\nJim Morita, Finance. Our accounting team found that 23 work orders created in January for the Brooklyn sector are tagged with cost center 'BX-220' (Bronx) instead of 'BK-410' (Brooklyn). This is causing a budget reconciliation error. All 23 are under project PROJ-2026-0021.",
+    "resolution": "Data Patch",
+    "what_we_did": "Ran a scoped UPDATE against WorkOrders where ProjectId = 'PROJ-2026-0021' AND CostCenter = 'BX-220', setting CostCenter = 'BK-410'. Updated 23 records. Finance confirmed the reconciliation error cleared after the next billing run.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Damage Classification Codes Missing for New Incident Type\n\nJacques Dernier, Field Classification. We responded to a new incident type last week — 'Temporal Displacement Event'. This category doesn't exist in our DamageClassifications reference table, so affected work orders can't be properly coded. Code should be 'TDE-01', description 'Temporal Displacement Event', severity 'CRITICAL'.",
+    "resolution": "Data Patch",
+    "what_we_did": "Inserted new row into DamageClassifications: ClassificationCode='TDE-01', Description='Temporal Displacement Event', SeverityLevel='CRITICAL', CreatedDate=GETUTCDATE(). Affected work orders can now be coded correctly.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Imported Work Orders Have Incorrect Zone Code\n\nMontgomery Falsworth, Data Operations. Last Friday's bulk import of 8 work orders for the Harlem cluster came in with zone code 'M-4' when they should all be 'M-7'. The import script had a typo in the template. Can you correct the zone code on those 8 records?",
+    "resolution": "Data Patch",
+    "what_we_did": "Corrected ZoneCode from 'M-4' to 'M-7' on all 8 affected work orders (WO-2026-8801 through WO-2026-8808). Import template has been flagged for correction to prevent recurrence.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Export to CSV Button Does Nothing on Damage Summary Report\n\nNick Fury here. When I go to the Damage Summary Report page and click 'Export to CSV', absolutely nothing happens. No download, no error, no spinner. I've tested in Chrome and Firefox. My colleague Melinda May has the same issue. This was working as of last Tuesday.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1144. Developer investigation found a JavaScript event handler was removed during the March 12 frontend refactor. Fix deployed in patch release v2.4.1. Export functionality restored.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Portal Crashes on Work Order Submission with Special Characters\n\nDaisy Johnson, Field Ops. Whenever a contractor tries to submit a work order where the site description contains an apostrophe or quotation mark (e.g., O'Brien Plaza), the portal throws an unhandled exception and crashes. This is happening for multiple crews.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1145. Root cause: missing parameterized query on the work order INSERT — raw string concatenation allowed unescaped characters to break the SQL statement. Fixed with parameterized inputs and input sanitization. Also flagged as a security concern (SQL injection vector). Deployed in v2.4.2.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Site Sync API Returns 500 After Midnight\n\nLeo Fitz, Platform Engineering. Our field management system calls the DCI site sync API (POST /api/v2/sites/sync) nightly at 12:05 AM. Since the March 1 release, every call between midnight and 2 AM returns HTTP 500. Daytime calls succeed. Error logs show 'Object reference not set to an instance of an object'.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1146. Developer found a background database maintenance job running at midnight was holding a table lock that the sync API wasn't handling gracefully (null reference on timed-out connection). Added retry logic with exponential backoff and moved maintenance window to 3 AM. Deployed in v2.4.3.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Map View Showing Site Pins in Wrong Locations\n\nJemma Simmons, GIS Team. The interactive map on the Site Overview page is showing all our Brooklyn sites about 3 miles northeast of their actual locations. Manhattan sites appear correct. This started after the March 7 deployment.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1147. Confirmed the borough offset correction for Brooklyn was being applied twice — once in the data layer and once in the UI rendering layer after the refactor. Removed duplicate transform in the UI layer. Deployed in v2.4.1.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "PDF Attachment Upload Fails for Files Over 5MB\n\nLance Hunter here. When contractors try to attach a site inspection photo PDF larger than 5MB to a work order, they get a generic 'Upload failed' error. Files under 5MB work fine. Our inspection reports regularly exceed 5MB.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1148. The portal UI file size limit was increased to 20MB in the config last month but the API gateway still had a 5MB hard limit. Updated the API gateway configuration to allow up to 20MB. Deployed without code change — config release only.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "No Option to Filter Work Orders by Incident Type\n\nBobbi Morse, Operations Planning. We'd like to filter the work order list by incident type (structural collapse, fire damage, alien incursion, flooding). Right now we can only filter by date, status, and borough. Having incident type as a filter would let us prioritize resource allocation.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created feature request ENG-1149 in the backlog. Assigned to AppDev Q2 sprint. Estimated 3 story points — requires a new filter parameter on the work order list API and a corresponding UI dropdown.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Portal Login Loop After Password Reset\n\nJoey Gutierrez. I reset my password this morning and now I'm stuck in an infinite redirect loop when I try to log in. I enter my new password, it shows the loading spinner, then redirects back to the login page without any error. Tried incognito mode — same result. My colleague Yo-Yo Rodriguez has the same issue.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created high-priority work item ENG-1150. Root cause: password reset flow was issuing a new session token but not clearing the stale auth cookie, causing an auth validation loop. Hotfix deployed within 2 hours. Affected users' sessions cleared. Joey and Yo-Yo confirmed access restored.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Automated Billing Notifications Stopped Sending\n\nMack Mackenzie, Finance Systems. Since the March 15 deployment, clients are no longer receiving automated invoice-ready email notifications when a work order is marked complete. Invoices are generating in the system but notification emails aren't going out.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1151. Found that the March 15 deploy accidentally removed the event handler that published to the notification queue when a work order transitioned to COMPLETE status. Re-added the event hook. Backfilled notification emails for all work orders completed between March 15–18.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Work Order Status History Not Showing Audit Trail\n\nMike Peterson, Compliance. Work orders are supposed to maintain a full status change history. Since last week, when I click 'View History' on any work order, the audit trail panel loads but is empty — even for recently updated orders. This is a regulatory requirement.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created critical work item ENG-1152. Developer found the audit trail table's foreign key constraint was failing silently during a schema migration — status change events were being swallowed without being written. Applied migration fix and recovered audit records from the application event log. Compliance team notified.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Mobile App Crashes When Switching Between Sites\n\nRobbie Reyes, Field Crew. The DCI mobile app crashes every time I try to switch from one active site to another using the 'Sites' bottom nav tab. This is happening on iOS 17.4 after the app update last Wednesday. My whole crew has the same issue.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1153. iOS-specific memory management issue: the site map component wasn't releasing its resource references when navigating away, causing a memory overflow on the second site load. Fix deployed in mobile app v3.1.2.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Search Results Returning Archived Work Orders\n\nTurk Barrett, DCI Ops. When I search for work orders by site name, the results include archived/closed orders from 2024 mixed in with active ones. No way to distinguish them in results. I think the recent search index rebuild included archived records.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1154. Confirmed the search index rebuild script was missing a WHERE IsActive = 1 filter. Rebuilt the index with the correct filter. Also added an 'Active Only' toggle to the search UI for future flexibility.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Need Bulk-Assignment of Contractors to Multiple Sites\n\nFoggy Nelson, Resource Management. Right now assigning 10 contractors to 5 sites requires 50 individual actions. We need a bulk assignment feature — select multiple contractors, select multiple sites, assign in one action.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created feature request ENG-1155 in the backlog. Scoped as a medium-complexity feature: new bulk assignment endpoint on the API, multi-select UI on the assignments page. Assigned to AppDev Q2 sprint.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Contractor Availability Calendar Not Reflecting Updates\n\nKaren Page, Scheduling. When a crew lead updates a contractor's availability in the scheduling module, the change is confirmed on screen, but the Availability Calendar view still shows the old schedule for up to 24 hours. Coordinators are making conflicting assignments because of stale data.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1156. Confirmed the calendar view had a 24-hour Redis cache TTL that was not being invalidated on availability updates. Added cache invalidation on write in the scheduling service. Calendar now reflects updates within seconds of save.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "City Damage Assessment API Integration Returning Empty Payloads\n\nMalcolm Ducasse, Integrations. Our integration with the NYC City Damage Assessment System (CDAS) has been returning empty payload responses since March 10. HTTP 200 but response body is '{}'. The CDAS team says nothing changed on their end.",
+    "resolution": "Engineering Ticket",
+    "what_we_did": "Created work item ENG-1157. Investigation found the OAuth2 client credentials token for the CDAS integration expired on March 9 and was silently swallowed — the API returned 200 with an empty authorized-but-empty response rather than 401. Rotated credentials and added token expiry monitoring. Integration restored.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "How Do I Add a New Contractor to Our Crew Roster?\n\nJessica Jones here. We just brought on a new structural engineer — Curtis Hoyle — and need to set him up with DCI portal access. I'm a team admin but I can't find where to add new contractors in the portal.",
+    "resolution": "Field Support",
+    "what_we_did": "Walked Jessica through the Contractor Onboarding flow: Settings → Team Management → Add Contractor. Sent her a link to the onboarding documentation. Curtis Hoyle's account was created with standard contractor permissions.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Password Reset Email Not Arriving\n\nLuke Cage here. I tried to reset my portal password three times this morning and never received the reset email. Checked inbox, spam, junk — nothing. My email on file should be l.cage@dci-ops.com. I have active work orders due today.",
+    "resolution": "Field Support",
+    "what_we_did": "Confirmed l.cage@dci-ops.com was on a suppression list due to a previous bounce. Removed from suppression, sent a manual password reset link. Luke confirmed access restored within 5 minutes.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "New Site Supervisor Needs Portal Access\n\nDanny Rand, Project Management. We just promoted Colleen Wing to Site Supervisor for the Lower Manhattan cluster. She needs supervisor-level portal permissions — view and update work orders for her assigned sites, but not billing. Employee ID DCI-E-3309.",
+    "resolution": "Field Support",
+    "what_we_did": "Created portal account for Colleen Wing (DCI-E-3309) with the SITE_SUPERVISOR role. Assigned her to the Lower Manhattan site group. Sent welcome email with login instructions. Danny confirmed access was correct.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "How Do I Submit a Change Order on an Existing Work Order?\n\nClaire Temple, Field Ops. Work order WO-2026-8812 needs a scope change — additional debris removal was required. I need to submit a change order. I can't find the option anywhere on the work order detail page.",
+    "resolution": "Field Support",
+    "what_we_did": "Guided Claire to the 'More Actions' menu on the work order detail page → 'Request Scope Change'. Shared the Change Order guide from the documentation library. Claire successfully submitted the change order.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Invoice Not Received for February Reconstruction Project\n\nMisty Knight, Accounting at Rand Corporation (DCI-1004). We completed project PROJ-2026-0031 (Rand Tower structural repairs) in February and our accounting department has not received an invoice. Can you confirm status and resend to accounting@randcorp.com?",
+    "resolution": "Field Support",
+    "what_we_did": "Found that invoice INV-2026-1801 had been generated but the billing contact email for DCI-1004 was outdated. Updated billing email to accounting@randcorp.com and resent the invoice. Misty confirmed receipt.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "How Do I Download a Contractor's Safety Certification?\n\nFrank Castle, Site Safety. I need to download the OSHA safety cert for contractor Sam Wilson (ID DCI-C-5502) for a client compliance audit. The portal shows 'Cert on file — valid through 2027-06-01' but there's no download button visible.",
+    "resolution": "Field Support",
+    "what_we_did": "Directed Frank to the contractor's profile page → Documents tab → Safety Certifications section. The download icon is visible only to users with the SAFETY_ADMIN role. Confirmed Frank had the role and showed him the correct path. Cert downloaded successfully.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Contractor Locked Out After Failed Login Attempts\n\nCurtis Hoyle here. I've been locked out of the DCI portal after three failed login attempts. I need access today for a site inspection report due by end of business. Contractor ID: DCI-C-3791.",
+    "resolution": "Field Support",
+    "what_we_did": "Verified contractor identity via employee ID and manager confirmation from Colleen Wing. Unlocked account for DCI-C-3791 and sent a password reset link. Curtis confirmed access restored.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "How Do I Run a Damage Cost Report for Insurance Filing?\n\nScott Lang, Client Services at Stark Industries Insurance (DCI-1002). We need to submit a damage cost summary to our reinsurer for Q1 2026, broken down by incident type. I've never run this report before.",
+    "resolution": "Field Support",
+    "what_we_did": "Walked Scott through: Reports → Damage Cost Summary → filter by date range Q1 2026 → group by Incident Type → Export to PDF. Also shared the Insurance Reporting guide. Scott successfully generated and exported the report.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Question About SLA for Tier 1 Incident Response\n\nHope Van Dyne, Client Relations at Atlas Foundation (DCI-1006). Our contract specifies a 4-hour response SLA for Tier 1 incidents. We had an incident last week and DCI crews arrived in 6 hours. Can you clarify when the SLA clock starts — incident report submission or DCI acknowledgment?",
+    "resolution": "Field Support",
+    "what_we_did": "Confirmed that per DCI's standard contract terms, the SLA clock starts at incident acknowledgment (not submission). Shared the relevant contract clause and SLA policy document. Directed Hope to the client account team for a formal SLA review request. Also logged the incident for account manager follow-up.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Need to Update Our Company Billing Address\n\nHank Pym, Pym Technologies (DCI-1009). We relocated our headquarters last month. Our billing address is the old address and physical invoices aren't arriving. New address: 42 Pym Particle Drive, San Francisco, CA 94105.",
+    "resolution": "Field Support",
+    "what_we_did": "Updated the billing address for account DCI-1009 in the Client Accounts system. Confirmed with Hank that the next invoice cycle would reflect the new address. No code change required — standard account management update.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "How to Enroll in the Hazmat Handling Certification Course\n\nWanda Maximoff, Crew Development. We have 6 new crew members who need the DCI Hazmat Handling certification before they can be deployed to chemical-exposure sites. How do we enroll them? Do we use the Training module in the portal?",
+    "resolution": "Field Support",
+    "what_we_did": "Confirmed the enrollment path: Training → Course Catalog → Hazmat Handling → Enroll Crew. Walked Wanda through bulk enrollment for all 6 crew members. Course completion target: 2 weeks. Sent the course schedule and prerequisites document.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "New Contractor Cohort Needs Portal Access — 6 People\n\nVision, DCI Resource Management. Six new contractors starting Monday need standard contractor-level portal access: work order submission, site assignment viewing, and document library. Names: Monica Rambeau (DCI-C-6601), Jimmy Woo (DCI-C-6602), Yelena Belova (DCI-C-6603), Rick Mason (DCI-C-6604), Okoye (DCI-C-6605), Shuri (DCI-C-6606).",
+    "resolution": "Field Support",
+    "what_we_did": "Bulk-created portal accounts for all 6 contractors with CONTRACTOR_STANDARD role. Sent welcome emails with login instructions to each. Vision confirmed all 6 had access before Monday.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Invoice Total Doesn't Match Work Order Subtotals\n\nM'Baku, Finance at Atlas Foundation (DCI-1006). Invoice INV-2026-3341 shows a total of $284,500 but when I add up all linked work order subtotals I get $271,200 — a $13,300 discrepancy.",
+    "resolution": "Field Support",
+    "what_we_did": "Escalated to the DCI Billing team for reconciliation review. Investigation found one work order (WO-2026-9112) had a material surcharge manually added by the project manager post-completion that wasn't visible in the standard work order summary view. Sent M'Baku a detailed line-item breakdown. He confirmed the invoice was correct and approved payment.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Can Someone Walk Us Through the New Site Assignment Module?\n\nNakia, Project Coordination at DCI. Our team just got access to the new Site Assignment Module. The interface is quite different from the old one. Could someone do a 30-minute walkthrough with us over Teams? Three coordinators need to be up to speed before next week.",
+    "resolution": "Field Support",
+    "what_we_did": "Scheduled a 30-minute Teams walkthrough with Nakia and her team. Shared the Site Assignment Module user guide and a quick-reference cheat sheet in advance. Session completed; Nakia confirmed the team felt comfortable using the module independently.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Something Is Wrong With Our Account\n\nEverett Ross here. The system isn't working correctly for us. Please help as soon as possible.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead with follow-up question sent to Everett: 'Can you describe specifically what isn't working? For example, are you unable to log in, seeing incorrect data, or experiencing an error message? Please include any error text or screenshots if available.'",
+    "what_we_think_should_have_been_done": "After follow-up, Everett clarified he couldn't log in — this should have been routed as Field Support (account access). The vague initial description made classification impossible without follow-up."
+  },
+  {
+    "request": "System Performance Issues\n\nPeter Parker, DCI New York office. Things have been really slow lately across several of our systems — the portal, the mobile app, and our reports all seem affected. It started sometime last week. Is there a known issue?",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead. Sent follow-up: 'Can you clarify which specific features or pages are slow? Are you seeing timeouts or just delays? Has this affected all users on your team or just specific accounts? This will help us determine if it's an infrastructure issue or something specific to your account.'",
+    "what_we_think_should_have_been_done": "After investigation, the slowness was traced to a database query regression — this should have been routed as an Engineering Ticket once the scope was understood."
+  },
+  {
+    "request": "Work Order Issue — Possibly Data and Code\n\nNed Leeds, IT. Work order WO-2026-9901 is showing the wrong site (looks like a data issue) AND the edit form crashes when we try to correct it (looks like a code issue). Not sure which team should handle this or if it needs both. The work order is due for completion tomorrow.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead to coordinate across Data and Engineering teams simultaneously. Data team corrected the site linkage (Data Patch). Engineering team filed ENG-1162 to fix the crash on the edit form. Both resolved within 4 hours.",
+    "what_we_think_should_have_been_done": "This ticket correctly went to triage — it genuinely required both a Data Patch and an Engineering Ticket. The triage lead should split multi-team tickets like this rather than routing to a single team."
+  },
+  {
+    "request": "Contractor Situation\n\nMJ Jones, HR. We have a situation with contractor Flash Thompson (ID DCI-C-2201). There were some problems on site and he can no longer work on certain projects. We need this handled in the system appropriately.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead. Sent follow-up: 'Can you clarify what system changes are needed? For example, should his access be restricted to specific sites, suspended temporarily, or are there work order records that need updating? Any HR or safety documentation we should reference?'",
+    "what_we_think_should_have_been_done": "After clarification, the ask was a site-restriction flag update — this should have been routed as a Data Patch. The ambiguous HR framing made it impossible to classify without follow-up."
+  },
+  {
+    "request": "Reports Are Wrong\n\nBetty Brant, Client Services. The reports are not showing the right information. We need this corrected urgently. Our client meeting is at 2 PM.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead due to urgency and vagueness. Attempted follow-up: 'Which report are you seeing incorrect data in? What specific values look wrong and what should they show? If you can share a screenshot, that would help us assist you fastest.' Unable to reach Betty before her meeting.",
+    "what_we_think_should_have_been_done": "Betty later clarified the report had a stale data issue from the ETL. Should have been a Data Patch. For time-sensitive tickets, triage lead should attempt a phone call rather than email follow-up."
+  },
+  {
+    "request": "New Executive Needs Access to Everything\n\nJ. Jonah Jameson, Oscorp (DCI-1007). Our new CTO, Norman Osborn, needs immediate access to all DCI systems and reports for Oscorp projects. He starts tomorrow. Please set him up with full visibility into everything.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead and DCI account manager. Sent follow-up: 'To set up Mr. Osborn's access correctly, can you specify which systems and data he needs? Full account visibility requires manager approval and we'll need his employee details. We also need to confirm the appropriate permission level — executive dashboards differ from day-to-day operational access.' Looped in the Oscorp account manager to coordinate.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Unauthorized Data Access Concern\n\nJameson Harrington, DCI Compliance. We have reason to believe a contractor may have accessed work order records outside their assigned projects last Thursday between 2 and 4 PM. We need to know what records were accessed and by whom. Please escalate immediately.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Immediately escalated to triage lead, Security team, and DCI Compliance officer. Pulled access audit logs for the reported time window. Security investigation initiated. Compliance team engaged for formal incident response process.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Work Order Dispute Between Two Crews for Same Site\n\nCole North, Site Supervisor. Two crews — Crew A (lead: Sam Wilson) and Crew B (lead: Bucky Barnes) — have both submitted work orders for the same site, DCI-SITE-3301. Both claim they were assigned by different coordinators. The billing would be doubled and scope is overlapping.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead and the scheduling team. Investigation found both coordinators had assigned the site independently due to a miscommunication during a shift handoff. Scheduler adjudicated: Crew A (Sam Wilson) retained the assignment; Crew B's work order was cancelled. Data team voided the duplicate work order. Process gap flagged to scheduling management.",
+    "what_we_think_should_have_been_done": ""
+  },
+  {
+    "request": "Integration No Funciona\n\nDiego Reyes, NYC Emergency Management. La integración con nuestro sistema no está funcionando desde ayer. We cannot see the updates in the portal and our team is waiting. Por favor ayúdennos lo antes posible. The site ID is DCI-SITE-6644 and the project is important.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead. Follow-up sent in both English and Spanish asking for clarification on which integration and what data should be appearing. Also flagged to the Spanish-speaking support liaison. Follow-up revealed an ETL sync failure for DCI-SITE-6644 — resolved as Data Patch.",
+    "what_we_think_should_have_been_done": "After translation and clarification, this was a Data Patch (stale site sync data). Language barriers shouldn't cause misrouting — a bilingual triage intake process would have resolved this faster."
+  },
+  {
+    "request": "Integration Not Working\n\nPete Castiglione, Operations. Our integration stopped working. Can you please fix it? Thank you.",
+    "resolution": "Needs Human Review",
+    "what_we_did": "Escalated to triage lead. Follow-up sent: 'Could you let us know which integration is affected, what system it connects to, and what symptoms you're seeing? For example, are you getting error messages, missing data, or connection failures?' No response received after 48 hours — ticket marked as pending requester response.",
+    "what_we_think_should_have_been_done": ""
+  }
+]
