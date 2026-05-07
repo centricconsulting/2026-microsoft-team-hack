@@ -14,14 +14,15 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "bierner.markdown-mermaid",
+                "bierner.markdown-emoji",
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
                 "humao.rest-client",
-                "ms-dotnettools.csdevkit",
-                "bierner.markdown-mermaid",
                 "marp-team.marp-vscode",
-                "yzhang.markdown-all-in-one",
-                "mohsen1.prettify-json"
+                "mohsen1.prettify-json", 
+                "ms-dotnettools.csdevkit",
+                "yzhang.markdown-all-in-one"
             ],
             "settings": {
                 "github.copilot.advanced": {}

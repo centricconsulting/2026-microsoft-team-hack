@@ -5,7 +5,7 @@ description: >
   the API spec. Use this agent when you want a second opinion on whether a
   classification is correct, or when the AI's rationale seems off.
 tools:
-  - codebase
+  - search/codebase
 ---
 
 # Triage Reviewer
