@@ -25,7 +25,11 @@ DCI realizes time is tight, and you may not be able to get everything accomplish
    - The team will need to:
      - Determine how the request is first received (HTTP POST, Teams chat, PowerBI form, email, file, etc.)
      - Determine the required fields.
-1. **Create a work ticket item in DCI's "system".** 
+1. **Create a work ticket item in DCI's helpdesk system.**
+   - DCI's helpdesk system exposes an API at https://app-x2slazjwhcxuq.azurewebsites.net.
+     - View the OpenAPI definition at https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json
+     - View the Swagger UI at https://app-x2slazjwhcxuq.azurewebsites.net/swagger
+   - DCI's helpdesk system also supports remote MCP access!
 2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale.Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
 
 ### Classification Categories
@@ -97,30 +101,7 @@ Classify each ticket into one of these categories:
 
 ##  :people_hugging: Teams
 
-Teams are pre-assigned and announced one week before Hack Day. Participants know their teammates in advance to coordinate roles, review the challenge brief, and set up environments ahead of time.
-
-> **Facilitator note:** Publish team assignments at least one week before the event so participants can prepare. Include team name, members, and a link to this repository.
-
----
-
-## :calendar: Schedule
-
-### Kickoff Meeting — One Week Before Hack Day
-
-**Duration:** 1 hour  
-**Purpose:** Introduce the hackathon, reveal teams, and clarify requirements.
-
-📊 **[Kickoff Presentation](docs/Centric-Microsoft-Practice-Hackathon-2026-Kickoff.pptx)** _(facilitator: create before kickoff)_
-
-| Activity                                  |
-| ----------------------------------------- |
-| Event overview and objectives             |
-| Team assignments reveal                   |
-| Challenge requirements & judging criteria |
-| Tech stack & environment setup            |
-| Q&A                                       |
-
-> **Facilitator note:** Participants should leave with their team roster, repository access, and clear success criteria. Encourage teams to set up dev environments before Hack Day.
+Teams are pre-assigned. Participants know their teammates in advance to coordinate roles, review the challenge brief, and set up environments ahead of time.
 
 ---
 
@@ -151,7 +132,7 @@ Teams are pre-assigned and announced one week before Hack Day. Participants know
 3. When prompted, click **"Reopen in Container"** or use the Command Palette → `Dev Containers: Reopen in Container`
 4. Wait for the container to build
 
-The dev container includes .NET 9, Azure CLI, and GitHub CLI.
+The dev container includes .NET 9, Azure CLI, and the GitHub CLI.
 
 ### Project Structure
 
@@ -191,7 +172,6 @@ GitHub Copilot is encouraged to accelerate development but is not required.
 
 - Let **GitHub Copilot** help you scaffold architecture layers — it knows the patterns from Copilot instructions in `.github/instructions/` (C#/.NET focused; adapt as needed for your stack).
 - Start with the classification/routing logic at the core of your solution, then build outward toward the API surface.
-- Copy `.env.example` to `.env` and fill in your Azure OpenAI credentials before you write a single line of AI code.
 - Open `triage.http` in VS Code (requires the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)) to test your `/api/triage` endpoint with all 10 sample requests in one click.
 - Use the sample requests to test your classification logic early and often.
 - The Aspire dashboard hint: set `OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4317` if running inside a dev container.
