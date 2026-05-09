@@ -30,7 +30,7 @@ DCI realizes time is tight, and you may not be able to get everything accomplish
      - View the OpenAPI definition at https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json
      - View the Swagger UI at https://app-x2slazjwhcxuq.azurewebsites.net/swagger
    - DCI's helpdesk system also supports remote MCP access!
-2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale.Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
+2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale. Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
 
 ### Classification Categories
 
@@ -112,7 +112,7 @@ Teams are pre-assigned. Participants know their teammates in advance to coordina
 | 10:15am – 10:30am | **Kickoff** — Problem brief overview                                                    |
 | 10:30am - 2:00pm  | **Team Hack** — Teams collaborate on the solution proposal, design, and implementation. |
 | T.B.D.            | Working Lunch                                                                           |
-| 2:00 - 3:00pm     | **Final presentations.** Each team gets 5 minutes (strict timelimit)                    |
+| 2:00 - 3:00pm     | **Final presentations.** Each team gets 5 minutes (strict time limit)                   |
 | 3:00pm            | Go home!                                                                                |
 ---
 
