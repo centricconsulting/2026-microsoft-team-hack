@@ -24,7 +24,7 @@ Teams might create agents for common, repeated tasks:
 name: My Agent
 description: What this agent does and when to use it.
 tools:
-  - codebase
+  - search/codebase
   - terminal
 ---
 
