@@ -112,7 +112,7 @@ Teams are pre-assigned. Participants know their teammates in advance to coordina
 | 10:15am – 10:30am | **Kickoff** — Problem brief overview                                                    |
 | 10:30am - 2:00pm  | **Team Hack** — Teams collaborate on the solution proposal, design, and implementation. |
 | T.B.D.            | Working Lunch                                                                           |
-| 2:00 - 3:00pm     | **Final presentations.** Each team gets 5 minutes (strict timelimit)                    |
+| 2:00 - 3:00pm     | **Final presentations.** Each team gets 5 minutes (strict time limit)                   |
 | 3:00pm            | Go home!                                                                                |
 ---
 
