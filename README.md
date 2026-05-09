@@ -26,10 +26,10 @@ DCI realizes time is tight, and you may not be able to get everything accomplish
      - Determine how the request is first received (HTTP POST, Teams chat, PowerBI form, email, file, etc.)
      - Determine the required fields.
 1. **Create a work ticket item in DCI's helpdesk system.**
-   - DCI's helpdesk system exposes an API at https://app-x2slazjwhcxuq.azurewebsites.net.
-     - View the OpenAPI definition at https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json
-     - View the Swagger UI at https://app-x2slazjwhcxuq.azurewebsites.net/swagger
-   - DCI's helpdesk system also supports remote MCP access!
+   - Access the DCI helpdesk system https://app-x2slazjwhcxuq.azurewebsites.net.
+     - **OpenAPI**: https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json
+     - **Swagger UI**: https://app-x2slazjwhcxuq.azurewebsites.net/swagger
+     - **Remote MCP Server**: https://app-x2slazjwhcxuq.azurewebsites.net/mcp
 2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale. Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
 
 ### Classification Categories
