@@ -30,7 +30,7 @@ DCI realizes time is tight, and you may not be able to get everything accomplish
      - View the OpenAPI definition at https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json
      - View the Swagger UI at https://app-x2slazjwhcxuq.azurewebsites.net/swagger
    - DCI's helpdesk system also supports remote MCP access!
-2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale.Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
+2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale. Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
 
 ### Classification Categories
 
