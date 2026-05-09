@@ -23,7 +23,7 @@ DCI realizes time is tight, and you may not be able to get everything accomplish
    - If the solution is unable to classify the ticket, you should get a human involved.  
    - If the ticket does not contain the required data, get a human involved.
    - The team will need to:
-     - Determine how the request is first received (HTTP POST, Teams chat, PowerBI form, email, file, etc.)
+     - Determine how the request is first received (HTTP POST, Teams chat, Power BI form, email, file, etc.)
      - Determine the required fields.
 1. **Create a work ticket item in DCI's helpdesk system.**
    - Access the DCI helpdesk system https://app-x2slazjwhcxuq.azurewebsites.net.
