@@ -1,39 +1,51 @@
 # Request Triage Assistant — Centric Microsoft Practice Hackathon 2026
 
-## Background
+## :high_brightness: Background
 
 Damage Control, Inc. (DCI) is the Marvel Universe's premier disaster-recovery and reconstruction firm. When the Avengers level a city block, Damage Control sends in the crews. But behind the cape-and-crayon chaos, DCI runs like any real enterprise: hundreds of support requests land in the help desk every week. Operations coordinators, field contractors, and city liaisons all submit tickets — and right now, support staff manually read every one and route it to the right team.
 
-It's slow. It creates delays. Tickets get misrouted.
+It's slow. It creates delays. Tickets get misrouted.  Support staff is overwhelmed!
 
 ### Vision
 
-The DCI technology team wants **AI-assisted triage** to automatically classify incoming support requests and route them to the right team — instantly, accurately, with clear reasoning.
-
-You'll build a proof-of-concept the support team can evaluate. Your solution processes a structured help request, uses AI to classify and route it, and returns a decision with rationale.
-
-Solutions must reflect **enterprise engineering fundamentals**: observable, testable, and structured using clean architecture and domain-driven design patterns.
+The DCI technology team wants to use AI to improve operational efficiency and customer service.  They feel AI agents can **triage** incoming requests and **propose** solutions for the IT team to review.  The solution will need to validate and classify the support request, propose a solution based on historical solutions, and interface with DCI's existing support system.
 
 ---
 
-## Challenge Description
+## :mag_right: Challenge Description
 
-Build a proof-of-concept API (or callable script) that uses AI to triage incoming DCI help desk tickets. Classify each ticket into one of these categories:
+You'll build a **proof-of-concept** the support team can evaluate. As DCI has an existing relationship with Microsoft, they have a strong preference for a **solution which leverages Microsoft AI technologies**.
+
+DCI realizes time is tight, and you may not be able to get everything accomplished today.  Focus on how your solution can add immediate value for DCI and highlight extension points for growth.  You don't need to build everything - focus on doing a few things really well.
+
+1. **Create a solution proposal.** You will need to create a concise pitch deck for DCI leadership which demonstrates your understanding of DCI's challenge, your recommended solution, and preliminary proposal (timeline, team structure, costs, etc.).  Use AI.
+1. **Validate and classify the support ticket.** The classification must include the rationale for the classification.  
+   - If the solution is unable to classify the ticket, you should get a human involved.  
+   - If the ticket does not contain the required data, get a human involved.
+   - The team will need to:
+     - Determine how the request is first received (HTTP POST, Teams chat, Power BI form, email, file, etc.)
+     - Determine the required fields.
+1. **Create a work ticket item in DCI's helpdesk system.**
+   - Access the DCI helpdesk system https://app-x2slazjwhcxuq.azurewebsites.net.
+     - **OpenAPI**: https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json
+     - **Swagger UI**: https://app-x2slazjwhcxuq.azurewebsites.net/swagger
+     - **Remote MCP Server**: https://app-x2slazjwhcxuq.azurewebsites.net/mcp
+2. **Suggest a team and resolution based on historical data.** The team suggestion must include a rationale. Given a collection of data (e.g., a directory of JSON files), the solution should suggest the appropriate team(s) (routing) and a potential solution for DCI support staff.
+
+### Classification Categories
+
+Classify each ticket into one of these categories:
 
 - 🗄️ **Data Patch** — data-only fixes; SQL INSERT/UPDATE/DELETE against a known table; no code change needed
 - 💻 **Engineering Ticket** — bugs, regressions, feature requests; requires a developer and a work item
 - 🎫 **Field Support** — standard service desk requests; portal access, certifications, how-to questions, contractor onboarding
 - ⚠️ **Needs Human Review** — ambiguous or insufficient information; route to triage lead
 
-The API also provides a model-generated rationale explaining the classification, a confidence score, and metadata for observability.
-
 ---
 
-## API Specification
+## :sparkles: Examples
 
-The API exposes a `/api/triage` endpoint that accepts POST requests.
-
-### Request Body (JSON)
+### Support request
 
 ```json
 {
@@ -41,19 +53,18 @@ The API exposes a `/api/triage` endpoint that accepts POST requests.
   "submitted_by": "Marcus Webb",
   "date_submitted": "2026-03-10",
   "subject": "Export button broken on site status report",
-  "description": "When I click the Export to CSV button on the Site Status report page, nothing happens. I've tried Chrome and Edge. This was working fine last week.",
-  "account_id": "DCI-44201"
+  "description": "When I click the Export to CSV button on the Site Status report page, nothing happens. I've tried Chrome and Edge. This was working fine last week."
 }
 ```
 
-### Response Body (JSON)
+### Response
 
 ```json
 {
   "classification": "Engineering Ticket",
   "rationale": "The request describes a UI button that stopped functioning after previously working. This is consistent with a software regression and requires a developer to investigate and fix the application code.",
   "confidence": 0.94,
-  "next_steps": ["Create engineering work item", "Link to originating ticket", "Assign to AppDev queue"],
+  "resolution": "Create an engineering work item and assign to the AppDev team.",
   "follow_up_question": null,
   "meta": {
     "model": "gpt-4o",
@@ -67,115 +78,50 @@ The API exposes a `/api/triage` endpoint that accepts POST requests.
 
 ---
 
-## Assets
+## :books: Assets
 
 - [data/help_requests/sample_requests.json](data/help_requests/sample_requests.json) — 10 sample help requests with varying complexity
 - [data/routing_rules.md](data/routing_rules.md) — definitions of the four routing targets
 - [data/glossary.md](data/glossary.md) — common DCI domain terms
 - [triage.http](triage.http) — REST Client file with all 10 sample requests pre-loaded (VS Code [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client))
-- [.env.example](.env.example) — environment variable template; copy to `.env` and fill in your Azure OpenAI credentials
-- [TEAMS.md](TEAMS.md) — team assignments (published by facilitator before kickoff)
-- [docs/judging-scorecard.md](docs/judging-scorecard.md) — detailed scoring rubric with point values per criterion
 - [docs/adr/ADR-template.md](docs/adr/ADR-template.md) — Architecture Decision Record template
 
 ---
 
-## Challenge Requirements
+## :medal_sports: Judging Criteria
 
-Teams must:
-
-### 1. Build a solution that
-
-- Uses AI tools/frameworks available on the Microsoft platform (e.g., Azure OpenAI, Semantic Kernel, Azure AI Foundry, etc.)
-- Exposes a lightweight API or command-line tool that implements the spec above
-- Accepts one or more help requests as input
-- Returns a routing classification with rationale and confidence score
-
-### 2. Apply enterprise architecture patterns
-
-- Structure code using **Clean Architecture** or **Vertical Slice Architecture**
-- Apply **DDD** concepts where appropriate (entities, value objects, use cases)
-- Use **GitHub Copilot** to accelerate development — but own what you ship (encouraged, not required)
-
-### 3. Add observability
-
-- Log what was received, what was classified, and why
-- Include the AI model response and confidence score in logs
-- Bonus: wire up Azure Application Insights or equivalent for trace visualization
-
-### 4. Handle edge cases
-
-- Requests with missing or minimal descriptions
-- Requests that could fit multiple categories
-- Requests that are clearly out of scope
+| Area                       | Description                                                                                                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Best Use of AI             | Awarded to the team that most effectively applied AI to solve the DCI challenge through intelligent reasoning, automation, recommendations, or agent-driven workflows. |
+| Best Teamwork              | Awarded to the team that demonstrated exceptional cross-discipline collaboration, communication, and shared ownership throughout the hack.                             |
+| Best UX                    | Awarded to the team that delivered the most intuitive, engaging, and user-friendly experience for support staff and end users.                                         |
+| Most Advanced Architecture | Awarded to the team that designed the most technically sophisticated, scalable, and well-structured solution architecture using Microsoft technologies.                |
 
 ---
 
-## Judging Criteria
+##  :people_hugging: Teams
 
-| Area | Description |
-| -- | -- |
-| Functionality | Does it route correctly? Is the output useful? |
-| Architecture | Does the code reflect clean architecture and DDD patterns? |
-| Observability | Are AI decisions logged and explainable? |
-| Reliability | Does it handle vague or malformed requests gracefully? |
-| Collaboration | Was the work split among team members? |
-| Innovation | Bonus for agents, multi-step chains, or creative UX |
-
-See [docs/judging-scorecard.md](docs/judging-scorecard.md) for the full rubric with point values.
+Teams are pre-assigned. Participants know their teammates in advance to coordinate roles, review the challenge brief, and set up environments ahead of time.
 
 ---
 
-## Teams
+### Hack Day — ~4 Hours
 
-Teams are pre-assigned and announced one week before Hack Day. Participants know their teammates in advance to coordinate roles, review the challenge brief, and set up environments ahead of time.
-
-See [TEAMS.md](TEAMS.md) for the team roster (published by the facilitator before kickoff).
-
-> **Facilitator note:** Publish team assignments at least one week before the event so participants can prepare. Include team name, members, and a link to this repository.
-
+| Time              | Activity                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| 10:15am – 10:30am | **Kickoff** — Problem brief overview                                                    |
+| 10:30am - 2:00pm  | **Team Hack** — Teams collaborate on the solution proposal, design, and implementation. |
+| T.B.D.            | Working Lunch                                                                           |
+| 2:00 - 3:00pm     | **Final presentations.** Each team gets 5 minutes (strict time limit)                   |
+| 3:00pm            | Go home!                                                                                |
 ---
 
-## Schedule
-
-### Kickoff Meeting — One Week Before Hack Day
-
-**Duration:** 1 hour  
-**Purpose:** Introduce the hackathon, reveal teams, and clarify requirements.
-
-📊 **[Kickoff Presentation](docs/Centric-Microsoft-Practice-Hackathon-2026-Kickoff.pptx)** _(facilitator: create before kickoff)_
-
-| Activity |
-| -- |
-| Event overview and objectives |
-| Team assignments reveal |
-| Challenge requirements & judging criteria |
-| Tech stack & environment setup |
-| Q&A |
-
-> **Facilitator note:** Participants should leave with their team roster, repository access, and clear success criteria. Encourage teams to set up dev environments before Hack Day.
-
----
-
-### Hack Day — 4 Hours
-
-| Time | Activity |
-| -- | -- |
-| 9:00 – 9:15 | **Kickoff** — Problem brief overview |
-| 9:15 – 9:45 | **Team Planning** — Teams present architecture approach to a facilitator |
-| 9:45 – 11:30 | **Sprint 1: Build** |
-| 11:30 – 12:30 | **Sprint 2: Build & Polish** |
-| 12:30 – 12:50 | **Team Demos** (~5–8 min each) |
-| 12:50 – 1:00 | **Judging + Awards + Retrospective** |
-
----
-
-## Getting Started
+## :tada: Getting Started
 
 ### Prerequisites
 
 - VS Code with Dev Container extension
-- Docker Desktop / Rancher / Colima (to run the dev container)
+- Docker Desktop / Rancher / Podman / Colima (to run the dev container)
 - Git
 - GitHub Copilot access (encouraged)
 
@@ -186,16 +132,14 @@ See [TEAMS.md](TEAMS.md) for the team roster (published by the facilitator befor
 3. When prompted, click **"Reopen in Container"** or use the Command Palette → `Dev Containers: Reopen in Container`
 4. Wait for the container to build
 
-The dev container includes .NET 9, Azure CLI, and GitHub CLI.
+The dev container includes .NET 9, Azure CLI, and the GitHub CLI.
 
 ### Project Structure
 
 ```text
 .
 ├── .devcontainer/             # Dev container configuration
-├── .env.example               # Environment variable template (copy to .env)
 ├── triage.http                # REST Client file — one-click API testing in VS Code
-├── TEAMS.md                   # Team assignments (filled in by facilitator)
 ├── .github/
 │   ├── agents/                # Copilot agent definitions (e.g., triage-reviewer)
 │   ├── hooks/                 # Copilot agent lifecycle hooks
@@ -210,33 +154,24 @@ The dev container includes .NET 9, Azure CLI, and GitHub CLI.
 └── docs/
     ├── adr/                   # Architecture Decision Records
     │   └── ADR-template.md    # Blank ADR template
-    └── judging-scorecard.md   # Detailed scoring rubric
 ```
 
 ---
 
-## Technology Stack
+## :robot: Technology Stack
 
-Teams may use any Microsoft-supported language, runtime, and Azure services. Mix and match as your team sees fit.
+Teams are encouraged to use Microsoft AI technologies.  However, teams may use any technology they feel is appropriate. 
 
-| Layer | Recommended Options |
-| -- | -- |
-| **Language / Runtime** | C# (.NET 9+), TypeScript / JavaScript (Node.js), Python |
-| **API** | ASP.NET Core Minimal API, Azure Functions (isolated worker) |
-| **Architecture** | Clean Architecture, Vertical Slice Architecture |
-| **Testing** | xUnit, Jest, pytest — use what fits your stack |
-| **AI** | Azure OpenAI, Azure AI Foundry, Semantic Kernel |
-| **Observability** | OpenTelemetry + Azure Monitor / Application Insights |
+Teams should state why they made their technology choices.
 
 GitHub Copilot is encouraged to accelerate development but is not required.
 
 ---
 
-## Tips
+## :bulb: Tips
 
 - Let **GitHub Copilot** help you scaffold architecture layers — it knows the patterns from Copilot instructions in `.github/instructions/` (C#/.NET focused; adapt as needed for your stack).
 - Start with the classification/routing logic at the core of your solution, then build outward toward the API surface.
-- Copy `.env.example` to `.env` and fill in your Azure OpenAI credentials before you write a single line of AI code.
 - Open `triage.http` in VS Code (requires the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)) to test your `/api/triage` endpoint with all 10 sample requests in one click.
 - Use the sample requests to test your classification logic early and often.
 - The Aspire dashboard hint: set `OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4317` if running inside a dev container.

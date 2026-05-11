@@ -19,7 +19,7 @@ This folder contains help desk ticket data for training and testing the DCI AI t
 ```
 
 **Usage:**
-- Use this data to train or fine-tune your AI model to understand ticket patterns
+- Use this data as a reference for understanding ticket patterns
 - Analyze resolution patterns to improve classification accuracy
 - Build few-shot prompts with relevant examples
 - Test classification logic against known resolutions
