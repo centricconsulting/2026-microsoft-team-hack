@@ -88,7 +88,7 @@ Classify each ticket into one of these categories:
 
 | Area                       | Description                                                                                                                                                            |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Avengers Initiative Award | Awarded to the team with the strongest overall solution across innovation, architecture, teamwork, execution, and presentation. |
+| Avengers Initiative Award  | Awarded to the team with the strongest overall solution across innovation, architecture, teamwork, execution, and presentation.                                       |
 | Best Use of AI             | Awarded to the team that most effectively applied AI to solve the DCI challenge through intelligent reasoning, automation, recommendations, or agent-driven workflows. |
 | Best Teamwork              | Awarded to the team that demonstrated exceptional cross-discipline collaboration, communication, and shared ownership throughout the hack.                             |
 | Best UX                    | Awarded to the team that delivered the most intuitive, engaging, and user-friendly experience for support staff and end users.                                         |
