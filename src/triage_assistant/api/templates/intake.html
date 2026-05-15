@@ -223,6 +223,9 @@
       let html = `
         <span class="${badgeClass}">${escHtml(data.classification)}</span>
         <div class="result-grid">
+          <span class="result-label">Classification</span>
+          <span class="result-value">${escHtml(data.classification ?? "—")}</span>
+
           <span class="result-label">Request ID</span>
           <span class="result-value">${escHtml(data.request_id ?? "—")}</span>
 
