@@ -2,7 +2,11 @@
 
 ## :high_brightness: Background
 
-Damage Control, Inc. (DCI) is the Marvel Universe's premier disaster-recovery and reconstruction firm. When the Avengers level a city block, Damage Control sends in the crews. But behind the cape-and-crayon chaos, DCI runs like any real enterprise: hundreds of support requests land in the help desk every week. Operations coordinators, field contractors, and city liaisons all submit tickets — and right now, support staff manually read every one and route it to the right team.
+Damage Control, Inc. (DCI) is the Marvel Universe's premier disaster-recovery and reconstruction firm.
+When the Avengers level a city block, Damage Control sends in the crews. But behind the cape-and-crayon
+chaos, DCI runs like any real enterprise: hundreds of support requests land in the help desk every week.
+Operations coordinators, field contractors, and city liaisons all submit tickets — and right now, support
+staff manually read every one and route it to the right team.
 
 It's slow. It creates delays. Tickets get misrouted.  Support staff is overwhelmed!
 
@@ -76,15 +80,33 @@ Classify each ticket into one of these categories:
 
 ## :books: Assets
 
+### Repository
+
+Additional information, ticket classifications, example requests, glossary, and routing rules:
+**<https://github.com/centricconsulting/2026-microsoft-team-hack>**
+
+### Local Assets
+
 - [data/help_requests/sample_requests.json](data/help_requests/sample_requests.json) — 10 sample help requests with varying complexity
 - [data/routing_rules.md](data/routing_rules.md) — definitions of the four routing targets
 - [data/glossary.md](data/glossary.md) — common DCI domain terms
 - [triage.http](triage.http) — REST Client file with all 10 sample requests pre-loaded (VS Code [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client))
 - [docs/adr/ADR-template.md](docs/adr/ADR-template.md) — Architecture Decision Record template
 
+### DCI Helpdesk System
+
+The live helpdesk system your solution must integrate with:
+
+| Resource | URL |
+| --- | --- |
+| **Application** | <https://app-x2slazjwhcxuq.azurewebsites.net> |
+| **OpenAPI Spec** | <https://app-x2slazjwhcxuq.azurewebsites.net/openapi/v1.json> |
+| **Swagger UI** | <https://app-x2slazjwhcxuq.azurewebsites.net/swagger> |
+| **Remote MCP Server** | <https://app-x2slazjwhcxuq.azurewebsites.net/mcp> |
+
 ---
 
-## :medal_sports: Judging Criteria
+## :medal_sports: Awards
 
 | Area                       | Description                                                                                                                                                            |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -96,7 +118,7 @@ Classify each ticket into one of these categories:
 
 ---
 
-##  :people_hugging: Teams
+## :people_hugging: Teams
 
 Teams are pre-assigned. Participants know their teammates in advance to coordinate roles, review the challenge brief, and set up environments ahead of time.
 
@@ -111,6 +133,7 @@ Teams are pre-assigned. Participants know their teammates in advance to coordina
 | T.B.D.            | Working Lunch                                                                           |
 | 2:00 - 3:00pm     | **Final presentations.** Each team gets 5 minutes (strict time limit)                   |
 | 3:00pm            | Go home!                                                                                |
+
 ---
 
 ## :tada: Getting Started
@@ -157,7 +180,7 @@ The dev container includes .NET 9, Azure CLI, and the GitHub CLI.
 
 ## :robot: Technology Stack
 
-Teams are encouraged to use Microsoft AI technologies.  However, teams may use any technology they feel is appropriate. 
+Teams are encouraged to use Microsoft AI technologies.  However, teams may use any technology they feel is appropriate.
 
 Teams should state why they made their technology choices.
 
@@ -176,3 +199,5 @@ GitHub Copilot is encouraged to accelerate development but is not required.
 ---
 
 Good luck, and happy hacking! 🚀
+
+<https://loop.cloud.microsoft/p/eyJ3Ijp7InUiOiJodHRwczovL2NlbnRyaWNjb25zdWx0aW5nbGxjLnNoYXJlcG9pbnQuY29tLz9uYXY9Y3owbE1rWW1aRDFpSVd4R2NVNVJSV3RmZEd0eGJtYzFlbFZNVEdOTVNHSlBVVUpxWlU5MmRrWlFjWGxUU1Y4d01WOXVUMDlRUTJWTVJFMUZXRkJUWVZCUFUyVTRkMkpUTURjbVpqMHdNVUZFVUVwUU4wOUNWRTlFTmpOU1UwUlZXa1paVlVNMFdrVktRVVJNVkU1WUptTTlKbVpzZFdsa1BURSUzRCIsInIiOmZhbHNlfSwicCI6eyJ1IjoiaHR0cHM6Ly9jZW50cmljY29uc3VsdGluZ2xsYy5zaGFyZXBvaW50LmNvbS86Zmw6L3IvY29udGVudHN0b3JhZ2UvQ1NQXzQwOGQ1YTk0LTNmNDktNGFiNi1hNzgzLTljZDQyY2I3MGIxZC9Eb2N1bWVudCUyMExpYnJhcnkvTG9vcEFwcERhdGEvVW50aXRsZWQubG9vcD9kPXcxZTU4NjIwYjFkZTQ0MTE0YjkyZmNkNTA3MTI2ZjQxMyZjc2Y9MSZ3ZWI9MSZuYXY9Y3owbE1rWmpiMjUwWlc1MGMzUnZjbUZuWlNVeVJrTlRVRjgwTURoa05XRTVOQzB6WmpRNUxUUmhZall0WVRjNE15MDVZMlEwTW1OaU56QmlNV1FtWkQxaUlXeEdjVTVSUld0ZmRHdHhibWMxZWxWTVRHTk1TR0pQVVVKcVpVOTJka1pRY1hsVFNWOHdNVjl1VDA5UVEyVk1SRTFGV0ZCVFlWQlBVMlU0ZDJKVE1EY21aajB3TVVGRVVFcFFOMGxNVFVwTlFqVmFRVFZEVWtFelUwdzJUa3RDV1ZOT05VRlVKbU05SlRKR0ptWnNkV2xrUFRFbVlUMU1iMjl3UVhCd0puQTlKVFF3Wm14MWFXUjRKVEpHYkc5dmNDMXdZV2RsTFdOdmJuUmhhVzVsY2laNFBTVTNRaVV5TW5jbE1qSWxNMEVsTWpKVU1GSlVWVWg0YWxwWE5UQmpiV3hxV1RJNWRXTXpWbk5rUjJ4MVdqSjRjMWw1TlhwaFIwWjVXbGhDZG1GWE5UQk1iVTUyWWxoNGFVbFhlRWRqVlRWU1VsZDBabVJIZEhoaWJXTXhaV3hXVFZSSFRrMVRSMHBRVlZWS2NWcFZPVEprYTFwUlkxaHNWRk5XT0hkTlZqbDFWREE1VVZFeVZrMVNSVEZHVjBaQ1ZGbFdRbEJWTWxVMFpESktWRTFFWkRoTlJFWkNVa1pDUzFWRVpGQlJiRkpRVWtSWmVsVnNUa1ZXVm5CSFYxWldSRTVHY0VaVGEwWkZWRVpTVDFkQkpUTkVKVE5FSlRJeUpUSkRKVEl5YVNVeU1pVXpRU1V5TWpNeU9UVTVOMlpqTFRnelpqUXRORFV4TWkwNVpEbGtMV1UzWWpjd05USmpZbVkyWXlVeU1pVTNSQSUzRCUzRCIsInIiOmZhbHNlfSwiaSI6eyJpIjoiMzI5NTk3ZmMtODNmNC00NTEyLTlkOWQtZTdiNzA1MmNiZjZjIn19>

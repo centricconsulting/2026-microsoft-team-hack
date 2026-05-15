@@ -87,6 +87,35 @@ public record ConfidenceScore
 }
 ```
 
+## Code Reuse — Read Before You Write
+
+**Before writing any helper, extension method, or utility class, search the codebase first.**
+LLMs produce subtle variations of the same code that quietly diverge over time and break things.
+
+Rules:
+- If a method that does what you need **already exists**, call it — do not rewrite it
+- If the existing implementation is _almost_ right, **extend or parameterise** it — do not create a
+  near-duplicate alongside it
+- If something is written **twice**, note it. If it is written **three times**, extract it.
+  That is the Rule of Three. Not one occurrence, not two — three.
+- Extension methods go in `{Layer}/Extensions/` — one file per type being extended
+  (e.g., `StringExtensions.cs`, `HelpRequestExtensions.cs`)
+- Shared utilities that have no natural layer home go in `Application/Common/` (not a catch-all
+  `Utils/` folder — name the concern: `Validation/`, `Mapping/`, `Formatting/`)
+- Static helper classes are a last resort; prefer extension methods or injected services
+
+```csharp
+// ❌ Wrong — near-duplicate created because "this one has a slight difference"
+public static string TruncateForLog(string s) => s.Length > 200 ? s[..200] + "..." : s;
+public static string TruncateSubject(string s) => s.Length > 200 ? s[..197] + "..." : s;
+
+// ✅ Right — parameterise the difference
+public static string Truncate(this string s, int maxLength, string suffix = "...")
+    => s.Length > maxLength ? s[..(maxLength - suffix.Length)] + suffix : s;
+```
+
+---
+
 ## Testing
 
 - Test class names: `{SystemUnderTest}Tests`

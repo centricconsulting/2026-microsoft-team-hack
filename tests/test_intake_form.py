@@ -38,10 +38,10 @@ async def test_get_intake_form_content_type_is_html():
 
 # ─── Intake Form — HelpRequest field inputs present in HTML (AC-5) ────────────
 
-async def test_get_intake_form_contains_request_id_input():
-    """Form contains an input named request_id (AC-5: HelpRequest field coverage)."""
+async def test_get_intake_form_does_not_contain_request_id_input():
+    """Form must NOT contain an input named request_id (ADR-0006: server-generated ID)."""
     response = await _get("/")
-    assert 'name="request_id"' in response.text
+    assert 'name="request_id"' not in response.text
 
 
 async def test_get_intake_form_contains_submitted_by_input():
@@ -77,14 +77,14 @@ async def test_get_intake_form_contains_account_id_input():
 # ─── Intake Form — client-side validation (AC-2) ──────────────────────────────
 
 async def test_get_intake_form_all_inputs_carry_required_attribute():
-    """All 6 HelpRequest inputs carry the HTML required attribute (AC-2).
+    """All remaining HelpRequest inputs carry the HTML required attribute (AC-2).
 
     Client-side validation must prevent submission before an API call is made.
-    Exactly 6 fields are required: request_id, submitted_by, date_submitted,
-    subject, description, account_id.
+    Five fields are required: submitted_by, date_submitted, subject, description,
+    account_id.  request_id is server-generated and no longer on the form (ADR-0006).
     """
     response = await _get("/")
-    assert response.text.count("required") >= 6
+    assert response.text.count("required") >= 5
 
 
 # ─── Intake Form — JavaScript-disabled safety (ADR-0005 §Consequences) ────────

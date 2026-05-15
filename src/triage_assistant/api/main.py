@@ -25,8 +25,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from ulid import ULID
 
 # Infrastructure layer — only imported here (the composition root).
 # Application and Domain layers never import from infrastructure.
@@ -54,22 +55,34 @@ async def lifespan(app: FastAPI):
     pydantic-settings fills them from environment variables at runtime — the
     type: ignore suppresses that false positive.
     """
-    settings = TriageSettings()  # type: ignore[call-arg]
+    import logging
+    logger = logging.getLogger(__name__)
 
-    # Embed all historical cases once at boot — avoids per-request embedding calls.
-    rag = RagService(settings)
-    await rag.load_historical_cases()
+    try:
+        settings = TriageSettings()  # type: ignore[call-arg]
 
-    # TriageAgent owns its FoundryChatClient; one client for the application lifetime.
-    agent = TriageAgent(settings)
+        # Embed all historical cases once at boot — avoids per-request embedding calls.
+        rag = RagService(settings)
+        await rag.load_historical_cases()
 
-    helpdesk = HelpdeskClient(settings)
+        # TriageAgent owns its FoundryChatClient; one client for the application lifetime.
+        agent = TriageAgent(settings)
 
-    # Inject interfaces into the Application layer — no AI types cross this boundary.
-    app.state.triage_service = TriageService(
-        agent, rag, helpdesk,
-        confidence_threshold=settings.confidence_threshold,
-    )
+        helpdesk = HelpdeskClient(settings)
+
+        # Inject interfaces into the Application layer — no AI types cross this boundary.
+        app.state.triage_service = TriageService(
+            agent, rag, helpdesk,
+            confidence_threshold=settings.confidence_threshold,
+        )
+        logger.info("Triage service ready.")
+    except Exception as exc:  # noqa: BLE001
+        # Azure credentials unavailable (e.g. local dev without az login).
+        # GET / (intake form) and GET /health work without app.state.
+        # POST /triage will return 503 until credentials are configured.
+        logger.warning("Triage service unavailable: %s. GET / and /health still serve.", exc)
+        app.state.triage_service = None
+
     yield
     # Shutdown: in-memory store requires no teardown.
 
@@ -110,7 +123,14 @@ async def triage(request: HelpRequest) -> TriageResult:
     Returns a TriageResult containing the classification, rationale, confidence,
     suggested resolution, optional follow-up question, model metadata, and ticket_id.
     """
-    return await app.state.triage_service.triage(request)
+    if app.state.triage_service is None:
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Triage service unavailable — Azure credentials not configured. Run 'az login' and restart."},
+        )
+    request.request_id = str(ULID())
+    result = await app.state.triage_service.triage(request)
+    return result.model_copy(update={"request_id": request.request_id})
 
 
 @app.get("/health")
