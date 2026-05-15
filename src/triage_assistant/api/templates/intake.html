@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DCI Support Request — Triage Assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 2rem 1rem;
+      color: #111827;
+    }
+
+    .card {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+      color: #0f172a;
+    }
+    .subtitle {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin: 0 0 1.75rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #374151;
+    }
+    .field { margin-bottom: 1.1rem; }
+
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.4rem;
+      font-size: 0.9rem;
+      color: #111827;
+      background: #f9fafb;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+    textarea { resize: vertical; min-height: 100px; }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    button[type="submit"] {
+      display: block;
+      width: 100%;
+      padding: 0.7rem;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 0.45rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.15s;
+    }
+    button[type="submit"]:hover { background: #1d4ed8; }
+    button[type="submit"]:disabled { background: #93c5fd; cursor: not-allowed; }
+
+    /* Result panel */
+    #result { display: none; margin-top: 1.5rem; }
+    #result.visible { display: block; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #dbeafe;
+      color: #1e40af;
+      margin-bottom: 0.75rem;
+    }
+    .badge.escalated { background: #fee2e2; color: #991b1b; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 0.4rem 1rem;
+      font-size: 0.875rem;
+    }
+    .result-label { font-weight: 600; color: #6b7280; white-space: nowrap; }
+    .result-value { color: #111827; }
+
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 0.4rem;
+      padding: 0.75rem 1rem;
+      color: #b91c1c;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+<noscript>
+  <div style="background:#fef3c7;border:1px solid #f59e0b;padding:1rem;border-radius:.5rem;max-width:640px;margin:0 auto 1rem;">
+    <strong>JavaScript is required.</strong> This form submits via JavaScript fetch().
+    Please enable JavaScript in your browser and reload the page.
+  </div>
+</noscript>
+
+<div class="card">
+  <h1>DCI Support Request</h1>
+  <p class="subtitle">Submit a new support request — the triage assistant will classify and route it automatically.</p>
+
+  <form id="triage-form" novalidate>
+
+    <div class="field">
+      <label for="account_id">Account ID</label>
+      <input type="text" id="account_id" name="account_id" placeholder="DCI-44201" required />
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label for="submitted_by">Submitted By</label>
+        <input type="text" id="submitted_by" name="submitted_by" placeholder="Full name" required />
+      </div>
+      <div class="field">
+        <label for="date_submitted">Date Submitted</label>
+        <input type="date" id="date_submitted" name="date_submitted" required />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="subject">Subject</label>
+      <input type="text" id="subject" name="subject" placeholder="Brief description of the issue" required />
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" placeholder="Provide full details: steps to reproduce, what you expected, what happened instead, any error messages…" required></textarea>
+    </div>
+
+    <button type="submit" id="submit-btn">Submit Request</button>
+  </form>
+
+  <!-- Result panel — shown after a successful triage response -->
+  <div id="result"></div>
+</div>
+
+<script>
+  // Pre-fill today's date in the date_submitted field
+  document.getElementById("date_submitted").value = new Date().toISOString().slice(0, 10);
+
+  document.getElementById("triage-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const btn  = document.getElementById("submit-btn");
+    const resultEl = document.getElementById("result");
+
+    // HTML5 built-in validation (all fields carry `required`)
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Submitting…";
+    resultEl.className = "";
+    resultEl.innerHTML = "";
+
+    const payload = {
+      submitted_by:   form.submitted_by.value.trim(),
+      date_submitted: form.date_submitted.value,
+      subject:        form.subject.value.trim(),
+      description:    form.description.value.trim(),
+      account_id:     form.account_id.value.trim(),
+    };
+
+    try {
+      const resp = await fetch("/triage", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        throw new Error("Server returned " + resp.status + ": " + errText);
+      }
+
+      const data = await resp.json();
+
+      const isEscalated = data.classification === "Needs Human Review";
+      const badgeClass  = isEscalated ? "badge escalated" : "badge";
+
+      let html = `
+        <span class="${badgeClass}">${escHtml(data.classification)}</span>
+        <div class="result-grid">
+          <span class="result-label">Classification</span>
+          <span class="result-value">${escHtml(data.classification ?? "—")}</span>
+
+          <span class="result-label">Request ID</span>
+          <span class="result-value">${escHtml(data.request_id ?? "—")}</span>
+
+          <span class="result-label">Ticket ID</span>
+          <span class="result-value">${escHtml(data.ticket_id ?? "—")}</span>
+
+          <span class="result-label">Confidence</span>
+          <span class="result-value">${data.confidence != null ? (data.confidence * 100).toFixed(0) + "%" : "—"}</span>
+
+          <span class="result-label">Rationale</span>
+          <span class="result-value">${escHtml(data.rationale ?? "")}</span>
+      `;
+
+      if (data.resolution) {
+        html += `
+          <span class="result-label">Resolution</span>
+          <span class="result-value">${escHtml(data.resolution)}</span>
+        `;
+      }
+      if (data.follow_up_question) {
+        html += `
+          <span class="result-label">Follow-up</span>
+          <span class="result-value">${escHtml(data.follow_up_question)}</span>
+        `;
+      }
+
+      html += "</div>";
+
+      resultEl.innerHTML = html;
+      resultEl.className = "visible";
+
+    } catch (err) {
+      resultEl.innerHTML = `<div class="error-box"><strong>Submission failed:</strong> ${escHtml(err.message)}</div>`;
+      resultEl.className = "visible";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Submit Request";
+    }
+  });
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+</script>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 ### Usage: click "Send Request" above any request block
 ### Set @baseUrl to wherever your API is running.
 
-@baseUrl = http://localhost:5000
+@baseUrl = http://localhost:8000
 
 # ─────────────────────────────────────────────────────────────────────────────
 # REQ0001 — Engineering Ticket (clear regression)

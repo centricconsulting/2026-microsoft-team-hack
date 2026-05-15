@@ -13,7 +13,7 @@ Teams might create agents for common, repeated tasks:
 | File | Purpose |
 | -- | -- |
 | `triage-reviewer.agent.md` | Reviews a triage classification decision and checks it against routing rules |
-| `test-writer.agent.md` | Generates xUnit test cases for a given use case class |
+| `test-writer.agent.md` | Generates pytest test cases for a given application service or module |
 | `adr-writer.agent.md` | Drafts an Architecture Decision Record given a problem and options |
 | `code-reviewer.agent.md` | Reviews code for Clean Architecture violations and DDD anti-patterns |
 

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "bash .github/hooks/scripts/adr-reminder.sh",
+        "cwd": ".",
+        "timeoutSec": 3
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "bash .github/hooks/scripts/pytest-guard.sh",
+        "cwd": ".",
+        "timeoutSec": 60
+      }
+    ]
+  }
+}

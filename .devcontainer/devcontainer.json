@@ -1,7 +1,7 @@
-// .NET Participant DevContainer - Centric Microsoft Practice Hackathon 2026
+// Python Participant DevContainer - Centric Microsoft Practice Hackathon 2026
 {
-    "name": "Centric MS Practice Hack 2026 - .NET",
-    "image": "mcr.microsoft.com/devcontainers/dotnet:9.0-bookworm",
+    "name": "Centric MS Practice Hack 2026 - Python",
+    "image": "mcr.microsoft.com/devcontainers/python:3.13-bookworm",
 
     "features": {
         "ghcr.io/devcontainers/features/github-cli:1": {
@@ -10,10 +10,11 @@
         "ghcr.io/devcontainers/features/azure-cli:1": {
             "version": "latest",
             "installBicep": true
-        }
+        },
+        "ghcr.io/astral-sh/uv:latest": {}
     },
 
-    "postCreateCommand": "dotnet dev-certs https --trust",
+    "postCreateCommand": "uv sync",
 
     "customizations": {
         "vscode": {
@@ -25,20 +26,23 @@
                 "humao.rest-client",
                 "marp-team.marp-vscode",
                 "mohsen1.prettify-json",
-                "ms-dotnettools.csdevkit",
-                "yzhang.markdown-all-in-one"
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "yzhang.markdown-all-in-one",
+                "ms-vscode.vscode-chat-customizations-evaluations"
             ],
             "settings": {
-                "github.copilot.advanced": {}
+                "github.copilot.advanced": {},
+                "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
             }
         }
     },
 
-    "forwardPorts": [5000, 5001],
+    "forwardPorts": [8000],
     "portsAttributes": {
-        "5001": {
-            "protocol": "https",
-            "label": ".NET HTTPS"
+        "8000": {
+            "protocol": "http",
+            "label": "Triage API"
         }
     }
 }

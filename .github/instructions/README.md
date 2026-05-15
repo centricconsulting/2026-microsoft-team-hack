@@ -10,8 +10,9 @@ Each file follows the naming pattern `<topic>.instructions.md` and can be scoped
 
 | File | Applies To | Purpose |
 | -- | -- | -- |
-| `dotnet.instructions.md` | `**/*.cs`, `**/*.csproj` | .NET 9 project setup, SDK choices, and tooling conventions |
-| `csharp.instructions.md` | `**/*.cs` | C# coding standards, naming conventions, and Clean Architecture patterns |
+| `python.instructions.md` | `**/*.py` | Python layer rules, Protocol pattern, async/await, pytest, MAF agent pattern |
+| `dotnet.instructions.md` | `**/*.cs`, `**/*.csproj` | .NET 9 project setup, SDK choices, and tooling conventions (dormant — no .cs files) |
+| `csharp.instructions.md` | `**/*.cs` | C# coding standards, naming conventions, Clean Architecture patterns (dormant — no .cs files) |
 
 ## Adding Your Own
 
