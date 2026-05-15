@@ -35,6 +35,7 @@ from triage_assistant.config import TriageSettings
 from triage_assistant.infrastructure.helpdesk_client import HelpdeskClient
 from triage_assistant.infrastructure.rag_service import RagService
 from triage_assistant.infrastructure.agents.triage_agent import TriageAgent
+from triage_assistant.infrastructure.triage_queue_store import InMemoryTriageQueueStore
 from triage_assistant.domain.models import HelpRequest, TriageResult
 from triage_assistant.application.triage_service import TriageService
 
@@ -70,10 +71,14 @@ async def lifespan(app: FastAPI):
 
         helpdesk = HelpdeskClient(settings)
 
+        queue_store = InMemoryTriageQueueStore()
+        app.state.triage_queue_store = queue_store
+
         # Inject interfaces into the Application layer — no AI types cross this boundary.
         app.state.triage_service = TriageService(
             agent, rag, helpdesk,
             confidence_threshold=settings.confidence_threshold,
+            queue_store=queue_store,
         )
         logger.info("Triage service ready.")
     except Exception as exc:  # noqa: BLE001

@@ -13,10 +13,15 @@ This separation means:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from triage_assistant.domain.models import HelpRequest, TriageResult
+    from triage_assistant.domain.models import (
+        ClassifiedRequestSummary,
+        HelpRequest,
+        TriageCategory,
+        TriageResult,
+    )
 
 
 class IRagService(ABC):
@@ -57,3 +62,43 @@ class ITriageAgent(ABC):
         similar_cases: list[dict],
     ) -> "TriageResult":
         """Classify a HelpRequest using RAG context and return a TriageResult."""
+
+
+class ITriageQueueStore(Protocol):
+    """Port for persisting and querying classified support requests.
+
+    Combines write (save after classification) and read (list for queue summary)
+    in a single Protocol. Split to separate CQRS interfaces only if read/write
+    models diverge materially in a future story.
+
+    Pre-conditions for save():
+        - request.request_id is a non-empty ULID stamped by the API handler
+        - result.classification is a valid TriageCategory literal
+
+    Post-conditions for save():
+        - Subsequent list_classified() includes the saved record
+        - Calling with the same request_id twice does not create a duplicate
+
+    Post-conditions for list_classified():
+        - Results ordered: TriagePriority.high first, then TriagePriority.normal
+        - Within each tier: newest date_submitted first
+        - queue=None returns all four routing queues
+
+    Permitted error signals:
+        - save() may raise RuntimeError if the store is unavailable (non-fatal
+          from TriageService — triage result is still returned to the caller)
+        - list_classified() may raise RuntimeError on store failure (handler → 503)
+    """
+
+    async def save(self, request: "HelpRequest", result: "TriageResult") -> None:
+        """Persist a classified request. Idempotent on request_id."""
+        ...
+
+    async def list_classified(
+        self,
+        queue: "TriageCategory | None" = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> "list[ClassifiedRequestSummary]":
+        """Return classified requests sorted by priority, newest within each tier."""
+        ...

@@ -6,12 +6,19 @@ no AI framework, HTTP client, or infrastructure imports are permitted here.
 Swapping Foundry for a different AI backend, or the helpdesk for a different
 ticket system, requires no changes to this file.
 """
+from __future__ import annotations
+
+import logging
+
 from triage_assistant.domain.models import HelpRequest, TriageResult
 from triage_assistant.application.interfaces import (
     IHelpdeskClient,
     IRagService,
     ITriageAgent,
+    ITriageQueueStore,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TriageService:
@@ -34,6 +41,7 @@ class TriageService:
         rag: IRagService,
         helpdesk: IHelpdeskClient,
         confidence_threshold: float = 0.85,
+        queue_store: ITriageQueueStore | None = None,
     ) -> None:
         """Inject all pipeline dependencies and the confidence threshold.
 
@@ -44,11 +52,15 @@ class TriageService:
             confidence_threshold: Minimum confidence for a classification to be
                 accepted as-is. Requests below this value are reclassified as
                 Needs Human Review. Defaults to 0.85.
+            queue_store: Optional store for persisting classified requests for the
+                queue summary screen. Failures are non-fatal — the triage result
+                is always returned to the caller even if save() raises.
         """
         self._agent = agent
         self._rag = rag
         self._helpdesk = helpdesk
         self._confidence_threshold = confidence_threshold
+        self._queue_store = queue_store
 
     async def triage(self, request: HelpRequest) -> TriageResult:
         """Run the full triage pipeline and return a classified, ticketed result.
@@ -77,5 +89,13 @@ class TriageService:
         # Step 4: create a work item in the DCI helpdesk system
         ticket_id = await self._helpdesk.create_ticket(request, classification_result)
         classification_result = classification_result.model_copy(update={"ticket_id": ticket_id})
+
+        # Step 5: persist to the queue store for the summary screen (non-fatal).
+        # A store outage must never prevent the triage result reaching the caller.
+        if self._queue_store is not None:
+            try:
+                await self._queue_store.save(request, classification_result)
+            except RuntimeError as exc:
+                logger.warning("Queue store save failed for %s: %s", request.request_id, exc)
 
         return classification_result

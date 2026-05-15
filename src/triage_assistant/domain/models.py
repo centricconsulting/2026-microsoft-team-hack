@@ -3,7 +3,11 @@
 All models are Pydantic BaseModels so they validate on construction and serialise
 to/from JSON automatically. No infrastructure or AI imports belong here.
 """
+from __future__ import annotations
+
+from enum import Enum
 from typing import Literal, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -24,6 +28,17 @@ ROUTING_MAP: dict[str, str] = {
     "Field Support": "Field Support Desk",
     "Needs Human Review": "Triage Lead",
 }
+
+
+class TriagePriority(str, Enum):
+    """Urgency tier derived from classification and confidence at save time.
+
+    High  — Needs Human Review (any confidence), or confidence below threshold.
+    Normal — All auto-classified results at or above the confidence threshold.
+    """
+
+    high   = "High"
+    normal = "Normal"
 
 
 class HelpRequest(BaseModel):
@@ -69,3 +84,21 @@ class TriageResult(BaseModel):
     meta: Optional[TriageMeta] = None          # Observability metadata; None in unit tests
     ticket_id: Optional[str] = None            # Helpdesk ticket ID set by TriageService after ticket creation
     request_id: Optional[str] = None           # Echoes the server-generated ULID back to the caller (ADR-0006)
+
+
+class ClassifiedRequestSummary(BaseModel):
+    """Read-only projection used by the queue summary screen (US-013).
+
+    Built by ITriageQueueStore.save() from a HelpRequest + TriageResult pair.
+    Never mutated after construction — this is a CQRS read model.
+    """
+
+    request_id:     str
+    subject:        str
+    submitted_by:   str
+    date_submitted: str
+    classification: TriageCategory
+    assigned_team:  str                  # Derived from ROUTING_MAP at save time
+    priority:       TriagePriority       # Derived from classification + confidence
+    confidence:     float
+    ticket_id:      Optional[str] = None

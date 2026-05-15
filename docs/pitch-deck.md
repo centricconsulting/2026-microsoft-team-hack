@@ -35,16 +35,30 @@ The measure of success is not response time. It is ticket volume, trending down.
 
 ---
 
-## SLIDE 4 — How We'd Build It
+## SLIDE 4 — How We Built It, How We'd Ship It
 
-**Microsoft AI Stack**
+**Hackathon POC — Running Now**
+
+| Component | Technology | Role |
+|---|---|---|
+| HTTP API | FastAPI + uvicorn | Accepts `POST /triage`; returns JSON classification with ULID request ID and confidence score |
+| AI inference | `azure-ai-inference` SDK — `ChatCompletionsClient` | Classifies tickets against `gpt-4o`; API key auth; no data-plane RBAC required |
+| Language model | `gpt-4o` (Azure AI Services, GlobalStandard deployment) | Classification, confidence score, rationale, resolution draft |
+| Embeddings | `cohere-embed-v3-english` (MaaS serverless) + `AsyncEmbeddingsClient` | Generates query and document embeddings for RAG similarity search |
+| Vector store | In-memory list + pure-Python cosine similarity | 50 historical cases embedded at startup; nearest-neighbour retrieval |
+| Helpdesk integration | Async `HelpdeskClient` abstraction | Creates helpdesk ticket; mock for POC — real DCI API wired in production |
+| Auth | API key (`AzureKeyCredential`) | Bypasses data-plane RBAC for hackathon execution |
+
+**Production Path — 90 Days**
 
 | Component | Microsoft Product | Role |
 |---|---|---|
-| Agent orchestration | Azure AI Foundry + Microsoft Agent Framework | Classifies tickets, enforces confidence threshold, escalates to human below 0.85 |
-| Semantic search | Azure AI Search | Matches inbound request to historical resolutions |
-| Model | Azure OpenAI gpt-4o (via Foundry) | Classification, rationale generation, resolution drafts |
-| Helpdesk integration | Existing DCI API (Azure App Service) | Creates work tickets, attaches resolution suggestions |
+| Agent orchestration | Microsoft Agent Framework — `FoundryChatClient` → named `FoundryAgent` | Classifies tickets, enforces confidence threshold, escalates to human below 0.85 |
+| Semantic search | Azure AI Search (Standard S1) | Persistent vector index; scales to full DCI ticket history |
+| Language model | `gpt-4o` via Azure AI Foundry (Managed Identity) | Same model; authentication switches from API key to `DefaultAzureCredential` |
+| Embeddings | `cohere-embed-v3-english` via Azure AI Foundry (Managed Identity) | Same model; `IRagService` interface is the seam — Infrastructure-only swap |
+| Helpdesk integration | DCI helpdesk API (Azure App Service) | Real ticket creation with resolution suggestions attached |
+| Auth | Managed Identity (`DefaultAzureCredential`) | Replaces API key behind `ITriageAgent` and `IRagService` — no Application layer changes |
 
 **Preliminary Proposal**
 
@@ -109,4 +123,5 @@ If yes — 90 days to production.
 
 Presented by: Team Captain America  
 Microsoft Practice Hackathon 2026  
-Microsoft Azure · Azure AI Foundry · Microsoft Agent Framework
+POC: Microsoft Azure · Azure AI Services · `azure-ai-inference` SDK  
+Production: Microsoft Azure · Azure AI Foundry · Microsoft Agent Framework · Azure AI Search

@@ -11,6 +11,7 @@
 Damage Control, Inc. receives hundreds of support tickets per week. Staff manually classify and route every one into one of four queues: **Data Patch**, **Engineering Ticket**, **Field Support**, or **Needs Human Review**. This is slow, error-prone, and a bottleneck.
 
 The goal is a proof-of-concept AI triage assistant that:
+
 1. Accepts an inbound support request via HTTP POST
 2. Classifies it using an LLM, with a confidence score and rationale
 3. Suggests a resolution grounded in historical resolved cases (RAG)
@@ -184,6 +185,7 @@ data/
 ### POST /triage
 
 **Request:**
+
 ```json
 {
   "request_id": "REQ0001",
@@ -196,6 +198,7 @@ data/
 ```
 
 **Response (200):**
+
 ```json
 {
   "classification": "Engineering Ticket",
@@ -274,11 +277,3 @@ OpenAPI docs at `http://localhost:8000/docs`.
 - [data/routing_rules.md](../../data/routing_rules.md)
 - [data/glossary.md](../../data/glossary.md)
 - [README.md](../../README.md)
-
-
-
-
-
-
-
-

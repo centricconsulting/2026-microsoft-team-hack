@@ -1,7 +1,7 @@
-# ADR-0003: AI Orchestration — Microsoft Agent Framework + Azure AI Foundry
+# ADR-0003: AI Orchestration — Azure AI Inference SDK + Azure AI Foundry
 
 **Status:** Accepted  
-**Date:** 2026-05-12 (revised 2026-05-13)  
+**Date:** 2026-05-12 (revised 2026-05-13, 2026-05-15)  
 **Team:** Team Captain America
 
 ---
@@ -12,11 +12,15 @@ The triage assistant needs to call an LLM for chat completion (classification). 
 
 DCI has a preference for Microsoft technologies and the Hackathon Coordinators have mandated use of **Azure AI Foundry** and **Foundry Agents** for AI service hosting. **Microsoft Agent Framework** (`agent-framework`) is Microsoft's recommended Python AI orchestration framework — the official successor to both Semantic Kernel and AutoGen, announced at Microsoft Build 2025. Its `foundry` provider connects natively to Azure AI Foundry projects.
 
+During hackathon execution (2026-05-15) it was discovered that `FoundryChatClient` internally creates an `AIProjectClient` (`azure-ai-projects`) which requires the **Azure AI Developer** data-plane RBAC role on the Foundry resource. The executing account holds `Contributor` at subscription scope but lacks `Microsoft.Authorization/roleAssignments/write` — the role cannot be self-assigned. `azure.ai.inference.aio.ChatCompletionsClient` provides the same chat completion capability via the AI Services multi-model inference endpoint (`/models/chat/completions`) and authenticates with an API key — no data-plane RBAC required.
+
 ---
 
 ## Decision
 
-Use **Microsoft Agent Framework** (`agent-framework>=1.3.0`) with the **`FoundryChatClient` provider** for inference and **`FoundryAgent`** for connecting to agents deployed in Azure AI Foundry.
+Use **`azure.ai.inference.aio.ChatCompletionsClient`** (`azure-ai-inference`) with **`AzureKeyCredential`** against the Azure AI Services multi-model inference endpoint (`https://<resource>.services.ai.azure.com/models`). The model (`gpt-4o`) is deployed as a standard deployment on the `AIServices` resource via `az cognitiveservices account deployment create`.
+
+`FoundryChatClient` remains the documented production path for when an `Azure AI Developer` role is assigned — the `ITriageAgent` seam means the swap is Infrastructure-only.
 
 ---
 
@@ -29,18 +33,21 @@ Use **Microsoft Agent Framework** (`agent-framework>=1.3.0`) with the **`Foundry
 | C — MAF `OpenAIChatClient` (direct API) | `OpenAIChatClient(api_key=...)` — no Foundry, no Azure; original PoC path |
 | D — Direct `azure-ai-projects` SDK | `AIProjectClient.inference.get_azure_openai_client()` — bypasses MAF orchestration layer |
 | E — LangChain | Non-Microsoft framework |
+| F — `azure-ai-inference` `ChatCompletionsClient` | `ChatCompletionsClient(endpoint=.../models, credential=AzureKeyCredential(...))` → `client.complete(messages)`; no RBAC required; same SDK used for embeddings |
 
 ---
 
 ## Rationale
 
-- **Chose Option A for the classification agent:** `FoundryChatClient` routes all inference through the Foundry project endpoint — satisfying the mandate while keeping agent instructions co-located with code. No separate Foundry agent deployment step required; the agent is defined in `infrastructure/agents/triage_agent.py` and the Foundry endpoint is swappable via config.
+- **Chose Option F (`azure-ai-inference ChatCompletionsClient`) as the current implementation:** `FoundryChatClient` (Option A) requires the `Azure AI Developer` data-plane RBAC role on the Foundry resource. The hackathon account holds `Contributor` but cannot self-assign RBAC roles (`Microsoft.Authorization/roleAssignments/write` is required). `ChatCompletionsClient` authenticates via API key against the AI Services `/models` inference endpoint — the same endpoint and SDK already used for embeddings (ADR-0004). A `gpt-4o` (2024-11-20, GlobalStandard) deployment was created on the resource via `az cognitiveservices account deployment create` — Contributor access is sufficient for this operation.
 
-- **Option B (`FoundryAgent`) is the production pattern:** When the team publishes the triage classifier as a named PromptAgent in Foundry (e.g. `"dci-triage-classifier"`), the infrastructure implementation switches to `FoundryAgent(project_endpoint=..., agent_name="dci-triage-classifier", ...)` with no Application layer changes. The `ITriageAgent` seam absorbs the swap.
+- **Option A (`FoundryChatClient`) is the production path:** Once the `Azure AI Developer` role is granted, revert `triage_agent.py` to use `FoundryChatClient` with `DefaultAzureCredential`. The `ITriageAgent` seam means this is an Infrastructure-only change.
 
-- **Rejected Option C (direct API):** Contradicts the Foundry mandate from Hackathon Coordinators. Left documented as the fallback if Foundry is unavailable.
+- **Option B (`FoundryAgent`) remains the long-term production pattern:** When the triage classifier is published as a named PromptAgent in Foundry, the infrastructure implementation switches with no Application layer changes.
 
-- **Rejected Option D (raw SDK):** Bypasses MAF middleware (retry, telemetry, compaction) — value that would need reimplementation manually.
+- **Rejected Option C (direct API):** Contradicts the Foundry mandate from Hackathon Coordinators.
+
+- **Rejected Option D (raw SDK):** `AIProjectClient` has the same RBAC requirement as `FoundryChatClient`.
 
 - **Rejected Option E (LangChain):** Non-Microsoft; conflicts with DCI's technology preference.
 
@@ -48,12 +55,44 @@ Use **Microsoft Agent Framework** (`agent-framework>=1.3.0`) with the **`Foundry
 
 ## Implementation
 
-### Option A — Code-defined agent via `FoundryChatClient` (current)
+### Option F — `azure-ai-inference ChatCompletionsClient` (current)
+
+```python
+# infrastructure/agents/triage_agent.py
+from azure.ai.inference.aio import ChatCompletionsClient
+from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.core.credentials import AzureKeyCredential
+from azure.identity.aio import DefaultAzureCredential
+
+# Endpoint: https://<resource>.services.ai.azure.com/models
+# API key preferred locally; DefaultAzureCredential for Managed Identity in production
+base = settings.foundry_project_endpoint.split("/api/projects")[0]
+models_endpoint = f"{base.rstrip('/')}/models"
+
+credential = (
+    AzureKeyCredential(settings.foundry_api_key)
+    if settings.foundry_api_key
+    else DefaultAzureCredential()
+)
+self._client = ChatCompletionsClient(endpoint=models_endpoint, credential=credential)
+
+# Classification call
+response = await self._client.complete(
+    messages=[
+        SystemMessage(content=system_prompt),
+        UserMessage(content=user_message),
+    ],
+    model=settings.chat_deployment,  # "gpt-4o"
+)
+raw = response.choices[0].message.content
+data = json.loads(raw)
+```
+
+### Option A — `FoundryChatClient` (production path, requires Azure AI Developer role)
 
 ```python
 # infrastructure/agents/triage_agent.py
 from agent_framework.foundry import FoundryChatClient
-from agent_framework import Agent, AgentResponse
 from azure.identity import DefaultAzureCredential
 
 client = FoundryChatClient(
@@ -61,31 +100,23 @@ client = FoundryChatClient(
     model=settings.chat_deployment,
     credential=DefaultAzureCredential(),
 )
-agent: Agent = client.as_agent(
-    name="dci-triage-classifier",
-    instructions=system_prompt,
-)
-response: AgentResponse[TriageResult] = await agent.run(
-    user_message,
-    options={"response_format": TriageResult},
-)
-result: TriageResult = response.value
+agent = client.as_agent(name="dci-triage-classifier", instructions=system_prompt)
+response = await agent.run(user_message)
+result = TriageResult.model_validate_json(response.text)
 ```
 
-### Option B — Foundry-deployed agent (production upgrade)
+### Option B — Foundry-deployed PromptAgent (long-term production)
 
 ```python
-# infrastructure/agents/triage_agent.py
 from agent_framework.foundry import FoundryAgent
 from azure.identity import DefaultAzureCredential
 
 agent = FoundryAgent(
     project_endpoint=settings.foundry_project_endpoint,
     agent_name=settings.foundry_agent_name,
-    agent_version=settings.foundry_agent_version,
     credential=DefaultAzureCredential(),
 )
-response: AgentResponse = await agent.run(user_message)
+response = await agent.run(user_message)
 result = TriageResult.model_validate_json(response.text)
 ```
 
@@ -93,21 +124,24 @@ result = TriageResult.model_validate_json(response.text)
 
 ## Consequences
 
-- ✅ Satisfies Hackathon Coordinator mandate: all inference routes through Azure AI Foundry
-- ✅ `ITriageAgent` seam is preserved — swap from Option A → B is Infrastructure-only
-- ✅ `DefaultAzureCredential` supports local dev (Azure CLI login) and CI (Managed Identity) without code changes
-- ✅ `agent-framework` telemetry integrates with Azure Monitor via `FoundryChatClient.configure_azure_monitor()`
-- ⚠️ Requires `FOUNDRY_PROJECT_ENDPOINT` in `.env` — fails fast at startup if missing
-- ⚠️ `agent-framework` requires `[tool.uv] prerelease = "allow"` in `pyproject.toml`
-- ⚠️ `azure-ai-projects` and `azure-identity` are now transitive dependencies (pulled in by `agent-framework[foundry]`)
-- ❌ Option C (direct `OPENAI_API_KEY`) no longer the default; available as a fallback by swapping to `OpenAIChatClient`
+- ✅ Satisfies Hackathon Coordinator mandate: inference routes through Azure AI Foundry resource endpoint
+- ✅ `ITriageAgent` seam is preserved — swap from Option F → A → B is Infrastructure-only
+- ✅ `AzureKeyCredential` works without any RBAC role — API key sufficient for AI Services data plane
+- ✅ `DefaultAzureCredential` fallback path retained — Managed Identity works in production once RBAC is assigned
+- ✅ No new dependencies — `azure-ai-inference` is already present for embeddings (ADR-0004)
+- ⚠️ Requires `FOUNDRY_PROJECT_ENDPOINT` and `FOUNDRY_API_KEY` in `.env` — fails fast at startup if missing
+- ⚠️ `agent-framework` telemetry (`FoundryChatClient.configure_azure_monitor()`) is not available on this path — OpenTelemetry instrumentation must be added manually if needed
+- ⚠️ `agent-framework` remains a `pyproject.toml` dependency for the Option A/B upgrade path; requires `[tool.uv] prerelease = "allow"`
+- ❌ `FoundryChatClient` (Option A) blocked until `Azure AI Developer` role is assigned to the executing identity on the Foundry resource
 
 ---
 
 ## References
 
+- [azure-ai-inference Python SDK](https://learn.microsoft.com/en-us/azure/ai-services/reference/sdk-package-reference-python)
+- [ChatCompletionsClient — Azure AI Inference](https://learn.microsoft.com/en-us/python/api/azure-ai-inference/azure.ai.inference.chatcompletionsclient)
 - [Microsoft Agent Framework — Overview](https://learn.microsoft.com/en-us/agent-framework/)
-- [agent-framework on PyPI](https://pypi.org/project/agent-framework/)
 - [Azure AI Foundry — Overview](https://learn.microsoft.com/en-us/azure/ai-foundry/)
 - [azure-identity DefaultAzureCredential](https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.defaultazurecredential)
-- [ADR-0005: Agent Framework Migration Detail](ADR-0005-agent-framework-migration.md)
+- [az cognitiveservices account deployment create](https://learn.microsoft.com/en-us/cli/azure/cognitiveservices/account/deployment)
+- [ADR-0004: Vector Store & Embeddings](ADR-0004-vector-store.md)
